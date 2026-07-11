@@ -4,8 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web IDE Pro</title>
-    <!-- CodeMirror 6 Core & Themes via CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/index.min.js" type="module"></script>
+    <!-- CodeMirror 5 CDN for light/dark syntax highlighting, touch responsiveness, and mobile scrolling -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/monokai.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/neo.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js"></script>
+    
     <style>
         :root {
             --bg-dark: #181818;
@@ -18,11 +26,24 @@
             --border: #333333;
         }
 
+        /* Light Mode Variable Assignments */
+        [data-theme="light"] {
+            --bg-dark: #e0e0e0;
+            --bg-sidebar: #f3f3f3;
+            --bg-editor: #ffffff;
+            --bg-hover: #e4e4e7;
+            --text-main: #1f1f1f;
+            --text-muted: #6e6e73;
+            --accent: #007acc;
+            --border: #cccccc;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -38,61 +59,78 @@
         /* Top Action Bar */
         header {
             background-color: var(--bg-sidebar);
-            height: 45px;
+            height: 50px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 16px;
+            padding: 0 12px;
             border-bottom: 1px solid var(--border);
             z-index: 10;
+            flex-shrink: 0;
         }
 
         .controls {
             display: flex;
-            gap: 8px;
+            gap: 6px;
         }
 
-        button {
-            background-color: #2d2d2d;
+        button, .toggle-theme-btn {
+            background-color: var(--bg-hover);
             color: var(--text-main);
             border: 1px solid var(--border);
-            padding: 5px 12px;
-            border-radius: 4px;
+            padding: 6px 10px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 13px;
+            font-weight: 500;
         }
 
-        button:hover {
-            background-color: var(--bg-hover);
-            border-color: #555;
+        button:active, .toggle-theme-btn:active {
+            background-color: var(--accent);
+            color: white;
         }
 
         #file-title {
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text-muted);
             font-family: monospace;
+            max-width: 40%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
-        /* Workspace Grid */
+        /* Workspace Core Layout Grid */
         .workspace {
             display: flex;
             flex-grow: 1;
-            height: calc(100vh - 45px);
+            height: calc(100vh - 50px);
             position: relative;
+            overflow: hidden;
         }
 
-        /* Sidebar File Explorer */
+        /* Responsive Sidebar File Explorer */
         aside {
-            width: 260px;
+            width: 240px;
             background-color: var(--bg-sidebar);
             border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+            transition: transform 0.2s ease-in-out;
+            flex-shrink: 0;
+            z-index: 5;
+        }
+
+        .sidebar-content {
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch; /* Kinetic scrolling smoothness on iOS/Android */
+            flex-grow: 1;
         }
 
         .sidebar-header {
-            padding: 10px 14px;
+            padding: 12px 14px;
             font-size: 11px;
             font-weight: bold;
             text-transform: uppercase;
@@ -102,16 +140,16 @@
         }
 
         .tree-root {
-            padding: 8px 0;
+            padding: 6px 0;
         }
 
         .tree-item {
             display: flex;
             align-items: center;
-            padding: 6px 14px;
+            padding: 10px 14px; /* Expanded tap targets for tablet sizes */
             cursor: pointer;
             font-size: 14px;
-            color: #cccccc;
+            color: var(--text-main);
             gap: 8px;
         }
 
@@ -120,17 +158,16 @@
         }
 
         .tree-item.active {
-            background-color: #37373d;
+            background-color: var(--accent);
             color: white;
         }
 
         .tree-folder {
             font-weight: 500;
-            color: #e2b342;
         }
 
         .folder-children {
-            padding-left: 20px;
+            padding-left: 16px;
             display: block;
         }
 
@@ -138,45 +175,53 @@
             display: none;
         }
 
-        /* Editor Wrapper */
+        /* Footer Element containing Theme Actions inside Sidebar bottom */
+        .sidebar-footer {
+            padding: 10px;
+            border-top: 1px solid var(--border);
+            background-color: var(--bg-sidebar);
+            display: flex;
+        }
+
+        .toggle-theme-btn {
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Editor Wrapper Framework */
         main {
             flex-grow: 1;
             background-color: var(--bg-editor);
             position: relative;
-        }
-
-        textarea {
-            width: 100%;
+            overflow: hidden;
             height: 100%;
-            background-color: var(--bg-editor);
-            color: #d4d4d4;
-            border: none;
-            padding: 16px;
-            font-family: 'Fira Code', Consolas, Monaco, monospace;
-            font-size: 16px;
-            line-height: 1.5;
-            outline: none;
-            resize: none;
-            user-select: text;
         }
 
-        /* Context Menu styling */
+        /* Overwrite CodeMirror sizing defaults for screen fluidity */
+        .CodeMirror {
+            height: 100% !important;
+            width: 100% !important;
+            font-family: 'Fira Code', Consolas, Monaco, monospace;
+            font-size: 15px;
+        }
+
+        /* Context Menu Overlay adjustments */
         #context-menu {
             position: absolute;
-            background-color: #252526;
+            background-color: var(--bg-sidebar);
             border: 1px solid var(--border);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
             display: none;
             flex-direction: column;
             padding: 4px 0;
             z-index: 1000;
-            border-radius: 4px;
-            min-width: 150px;
+            border-radius: 6px;
+            min-width: 160px;
         }
 
         .menu-item {
-            padding: 8px 14px;
-            font-size: 13px;
+            padding: 12px 16px; /* Optimized padding for touch accuracy */
+            font-size: 14px;
             color: var(--text-main);
             cursor: pointer;
         }
@@ -186,34 +231,57 @@
             color: white;
         }
 
-        /* Utility Icons using CSS shapes to prevent external asset dependencies */
         .icon-folder::before { content: "📁"; }
         .icon-file::before { content: "📄"; }
+
+        /* Responsiveness Media Queries for Compact Tablet screens */
+        @media (max-width: 600px) {
+            aside {
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                transform: translateX(-100%);
+            }
+            aside.open {
+                transform: translateX(0);
+                box-shadow: 4px 0 15px rgba(0,0,0,0.5);
+            }
+            .sidebar-toggle-active aside {
+                transform: translateX(0);
+            }
+        }
     </style>
 </head>
 <body>
 
     <header>
         <div class="controls">
+            <button id="btn-toggle-menu" style="display: none;">📁 Menu</button>
             <button id="btn-new-folder">New Folder</button>
             <button id="btn-new-file">New File</button>
-            <button id="btn-save">Save File</button>
+            <button id="btn-save">Save</button>
         </div>
         <div id="file-title">No file open</div>
     </header>
 
     <div class="workspace">
-        <aside>
-            <div class="sidebar-header">EXPLORER</div>
-            <div class="tree-root" id="explorer-root"></div>
+        <aside id="sidebar">
+            <div class="sidebar-content">
+                <div class="sidebar-header">EXPLORER</div>
+                <div class="tree-root" id="explorer-root"></div>
+            </div>
+            <div class="sidebar-footer">
+                <button class="toggle-theme-btn" id="btn-theme-toggle">Light Mode</button>
+            </div>
         </aside>
 
         <main>
-            <textarea id="editor" spellcheck="false" placeholder="// Select a file from the explorer to begin coding..."></textarea>
+            <!-- Integrated native placeholder element converted down by CodeMirror init -->
+            <textarea id="editor" spellcheck="false"></textarea>
         </main>
     </div>
 
-    <!-- Right-Click Context Menu -->
     <div id="context-menu">
         <div class="menu-item" id="ctx-new-file">New File...</div>
         <div class="menu-item" id="ctx-rename">Rename...</div>
@@ -221,26 +289,74 @@
     </div>
 
     <script>
-        // State Management 
-        // Emulating a virtual tree filesystem persisting into LocalStorage
+        // State Engine Data Cache Layer
         let fsData = JSON.parse(localStorage.getItem('v_ide_fs')) || {
-            root: {
-                id: 'root',
-                type: 'folder',
-                name: 'Workspace',
-                children: []
-            }
+            root: { id: 'root', type: 'folder', name: 'Workspace', children: [] }
         };
 
         let activeFileId = null;
         let rightClickedItemId = null;
+        let currentTheme = localStorage.getItem('v_ide_theme') || 'dark';
 
         const explorerRoot = document.getElementById('explorer-root');
-        const editor = document.getElementById('editor');
         const fileTitle = document.getElementById('file-title');
         const contextMenu = document.getElementById('context-menu');
+        const themeToggleBtn = document.getElementById('btn-theme-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const toggleMenuBtn = document.getElementById('btn-toggle-menu');
 
-        // Helpers
+        // Application Level CodeMirror Driver Setup
+        const cmInstance = CodeMirror.fromTextArea(document.getElementById('editor'), {
+            lineNumbers: true,
+            mode: "htmlmixed",
+            theme: currentTheme === 'dark' ? 'monokai' : 'neo',
+            lineWrapping: true, // Guarantees long columns wrap cleanly on tablet viewports
+            inputStyle: "contenteditable" // Drastically enhances mobile virtual keyboard tracking
+        });
+
+        // Responsive Mobile Breakpoint Handler
+        function evaluateViewportWidth() {
+            if (window.innerWidth <= 600) {
+                toggleMenuBtn.style.display = 'inline-block';
+            } else {
+                toggleMenuBtn.style.display = 'none';
+                sidebar.classList.remove('open');
+            }
+        }
+        window.addEventListener('resize', evaluateViewportWidth);
+        evaluateViewportWidth();
+
+        toggleMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            sidebar.classList.toggle('open');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 600 && !sidebar.contains(e.target) && e.target !== toggleMenuBtn) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // Theme Core Switch Logic
+        function setTheme(theme) {
+            currentTheme = theme;
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('v_ide_theme', theme);
+            
+            if (theme === 'dark') {
+                cmInstance.setOption('theme', 'monokai');
+                themeToggleBtn.textContent = 'Light Mode';
+            } else {
+                cmInstance.setOption('theme', 'neo');
+                themeToggleBtn.textContent = 'Dark Mode';
+            }
+        }
+        themeToggleBtn.addEventListener('click', () => {
+            setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+        });
+        setTheme(currentTheme); // Initial Execution Sync
+
+        // Virtual Filesystem Helper Operations
         function saveToStorage() {
             localStorage.setItem('v_ide_fs', JSON.stringify(fsData));
         }
@@ -273,7 +389,7 @@
             return false;
         }
 
-        // DOM Rendering Engine for File Tree
+        // DOM File Tree Render Pipeline
         function renderTree() {
             explorerRoot.innerHTML = '';
             fsData.root.children.forEach(child => {
@@ -304,7 +420,6 @@
                 childrenContainer.className = 'folder-children';
                 childrenContainer.dataset.parentId = node.id;
                 
-                // Keep tracks of collapse states smoothly
                 if (node.collapsed) childrenContainer.classList.add('collapsed');
 
                 node.children.forEach(child => {
@@ -312,7 +427,6 @@
                 });
                 container.appendChild(childrenContainer);
 
-                // Handle folder toggling
                 item.addEventListener('click', (e) => {
                     if (e.target.closest('.tree-item')) {
                         node.collapsed = !node.collapsed;
@@ -321,32 +435,52 @@
                     }
                 });
             } else {
-                // Handle file loading
                 item.addEventListener('click', () => {
                     selectFile(node.id);
+                    if (window.innerWidth <= 600) sidebar.classList.remove('open');
                 });
             }
 
-            // Universal Context Menu triggers
-            item.addEventListener('contextmenu', (e) => {
+            // Universal Triggering Context Hook
+            const triggerContextMenu = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                showContextMenu(e.clientX, e.clientY, node.id);
-            });
+                showContextMenu(e.clientX || (e.touches && e.touches[0].clientX), e.clientY || (e.touches && e.touches[0].clientY), node.id);
+            };
+
+            item.addEventListener('contextmenu', triggerContextMenu);
+            
+            // Mobile Long-Press Logic Emulation block
+            let pressTimer;
+            item.addEventListener('touchstart', (e) => {
+                pressTimer = setTimeout(() => {
+                    triggerContextMenu(e);
+                }, 600);
+            }, { passive: true });
+
+            item.addEventListener('touchend', () => clearTimeout(pressTimer));
+            item.addEventListener('touchmove', () => clearTimeout(pressTimer));
 
             return container;
         }
 
         function selectFile(id) {
             if (activeFileId) {
-                // Auto-save current open file cache before shift
                 const currentFile = findNode(activeFileId);
-                if (currentFile) currentFile.content = editor.value;
+                if (currentFile) currentFile.content = cmInstance.getValue();
             }
             
             activeFileId = id;
             const file = findNode(id);
-            editor.value = file.content || '';
+            
+            // Set contextual highlight highlighting based on file extension rules
+            let extension = file.name.split('.').pop().toLowerCase();
+            let targetMode = "htmlmixed";
+            if (extension === "js") targetMode = "javascript";
+            if (extension === "css") targetMode = "css";
+            
+            cmInstance.setOption("mode", targetMode);
+            cmInstance.setValue(file.content || '');
             fileTitle.textContent = file.name;
             
             document.querySelectorAll('.tree-item').forEach(el => el.classList.remove('active'));
@@ -355,7 +489,6 @@
             saveToStorage();
         }
 
-        // Core Mutators
         function createNewItem(type, parentId = 'root') {
             const name = prompt(`Enter ${type} name:`);
             if (!name) return;
@@ -379,18 +512,13 @@
             }
         }
 
-        // Context Menu Controls
+        // Context Sub-Menu Actions Mapping
         function showContextMenu(x, y, itemId) {
             rightClickedItemId = itemId;
             const targetNode = findNode(itemId);
             
-            // Contextually isolate options: Hide "New File" option if target clicked is already a file
             const newFileOption = document.getElementById('ctx-new-file');
-            if (targetNode.type === 'file') {
-                newFileOption.style.display = 'none';
-            } else {
-                newFileOption.style.display = 'block';
-            }
+            newFileOption.style.display = targetNode.type === 'file' ? 'none' : 'block';
 
             contextMenu.style.left = `${x}px`;
             contextMenu.style.top = `${y}px`;
@@ -401,7 +529,6 @@
             contextMenu.style.display = 'none';
         }
 
-        // Event Interceptors
         document.getElementById('btn-new-folder').addEventListener('click', () => createNewItem('folder', 'root'));
         document.getElementById('btn-new-file').addEventListener('click', () => createNewItem('file', 'root'));
         
@@ -409,13 +536,11 @@
             if (!activeFileId) return;
             const file = findNode(activeFileId);
             if (file) {
-                file.content = editor.value;
+                file.content = cmInstance.getValue();
                 saveToStorage();
-                alert(`Saved: ${file.name} to local local-storage container context.`);
             }
         });
 
-        // Context Operations
         document.getElementById('ctx-new-file').addEventListener('click', () => {
             createNewItem('file', rightClickedItemId);
             hideContextMenu();
@@ -440,7 +565,7 @@
                 deleteNode(rightClickedItemId);
                 if (activeFileId === rightClickedItemId) {
                     activeFileId = null;
-                    editor.value = '';
+                    cmInstance.setValue('');
                     fileTitle.textContent = 'No file open';
                 }
                 saveToStorage();
@@ -452,9 +577,7 @@
         window.addEventListener('click', hideContextMenu);
         window.addEventListener('blur', hideContextMenu);
 
-        // Initializer Run execution
         renderTree();
     </script>
 </body>
 </html>
-
