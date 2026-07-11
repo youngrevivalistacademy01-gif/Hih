@@ -198,6 +198,7 @@
             border-radius: 8px;
             margin-bottom: 3px;
             transition: all 0.15s ease;
+            position: relative;
         }
 
         .tree-item:hover { background-color: var(--bg-hover); }
@@ -205,6 +206,21 @@
             background-color: var(--accent-glow);
             color: var(--accent);
             font-weight: 600;
+        }
+
+        /* Inline folder option shortcut trigger */
+        .folder-plus-trigger {
+            margin-left: auto;
+            padding: 2px 6px;
+            font-size: 12px;
+            border-radius: 4px;
+            transition: background 0.1s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .folder-plus-trigger:hover {
+            background: var(--border);
         }
 
         .folder-children {
@@ -609,7 +625,6 @@
             <button id="btn-sidebar-toggle">☰ Sidebar</button>
             <button id="btn-new-folder">＋ Folder</button>
             <button id="btn-new-file">＋ File</button>
-            <button id="btn-split-toggle" style="background: var(--bg-hover); border-color: var(--border);">🥞 Split View</button>
         </div>
         <div id="file-title">Vivid IDE Active</div>
         <div class="controls">
@@ -754,7 +769,6 @@
         const cmdPalette = document.getElementById('cmd-palette');
         const cmdInput = document.getElementById('cmd-input');
         const cmdResults = document.getElementById('cmd-results');
-        const btnSplitToggle = document.getElementById('btn-split-toggle');
 
         // Main Primary Editor Setup
         const cmInstance = CodeMirror.fromTextArea(document.getElementById('editor'), {
@@ -1072,9 +1086,20 @@
             
             item.appendChild(icon);
             item.appendChild(label);
-            container.appendChild(item);
 
             if (node.type === 'folder') {
+                // Add explicit inline shortcut options panel trigger button
+                const plusBtn = document.createElement('span');
+                plusBtn.className = 'folder-plus-trigger';
+                plusBtn.textContent = '➕';
+                plusBtn.addEventListener('click', (e) => {
+                    e.stopPropagation(); e.preventDefault();
+                    hideContextMenu();
+                    const rect = plusBtn.getBoundingClientRect();
+                    showContextMenu(rect.left, rect.bottom, node.id);
+                });
+                item.appendChild(plusBtn);
+
                 const childrenContainer = document.createElement('div');
                 childrenContainer.className = 'folder-children';
                 if (node.collapsed) childrenContainer.classList.add('collapsed');
@@ -1166,29 +1191,6 @@
                 if (liveServerActive) updateLiveServer();
             }
         }
-
-        // Split Layout System Toggles
-        btnSplitToggle.addEventListener('click', () => {
-            splitViewMode = !splitViewMode;
-            const secondaryPane = document.getElementById('pane-secondary');
-            if (splitViewMode) {
-                secondaryPane.style.display = 'flex';
-                // Automatically display next available file tab or current
-                if (openTabs.length > 1) {
-                    let nextIndex = openTabs.indexOf(activeFileId) === 0 ? 1 : 0;
-                    selectFile(openTabs[nextIndex], true);
-                } else if (activeFileId) {
-                    selectFile(activeFileId, true);
-                }
-            } else {
-                secondaryPane.style.display = 'none';
-                secondaryFileId = null;
-            }
-            setTimeout(() => {
-                cmInstance.refresh();
-                cmSecondary.refresh();
-            }, 50);
-        });
 
         async function createNewItem(type, parentId = 'root') {
             const name = await openCustomModal(`New ${type === 'folder' ? 'Folder' : 'File'}`, `Enter a name:`, type === 'file' ? 'index.html' : 'components');
