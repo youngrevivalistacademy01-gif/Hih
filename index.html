@@ -3,191 +3,458 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web IDE</title>
+    <title>Web IDE Pro</title>
+    <!-- CodeMirror 6 Core & Themes via CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/index.min.js" type="module"></script>
     <style>
         :root {
-            --bg-color: #1e1e1e;
-            --text-color: #d4d4d4;
-            --toolbar-bg: #2d2d2d;
-            --button-bg: #3c3c3c;
-            --button-active: #0e639c;
+            --bg-dark: #181818;
+            --bg-sidebar: #202020;
+            --bg-editor: #1e1e1e;
+            --bg-hover: #2a2a2a;
+            --text-main: #e0e0e0;
+            --text-muted: #858585;
+            --accent: #007acc;
+            --border: #333333;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            user-select: none;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
             height: 100vh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
 
+        /* Top Action Bar */
         header {
-            background-color: var(--toolbar-bg);
-            padding: 8px 16px;
+            background-color: var(--bg-sidebar);
+            height: 45px;
             display: flex;
             align-items: center;
-            gap: 12px;
-            border-bottom: 1px solid #3c3c3c;
+            justify-content: space-between;
+            padding: 0 16px;
+            border-bottom: 1px solid var(--border);
+            z-index: 10;
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
         }
 
         button {
-            background-color: var(--button-bg);
-            color: white;
-            border: none;
-            padding: 6px 12px;
+            background-color: #2d2d2d;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 5px 12px;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 14px;
-            transition: background 0.2s;
+            font-size: 13px;
         }
 
         button:hover {
-            background-color: #4d4d4d;
+            background-color: var(--bg-hover);
+            border-color: #555;
         }
 
-        button:active {
-            background-color: var(--button-active);
-        }
-
-        #file-status {
+        #file-title {
             font-size: 13px;
-            color: #8a8a8a;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            color: var(--text-muted);
+            font-family: monospace;
         }
 
+        /* Workspace Grid */
+        .workspace {
+            display: flex;
+            flex-grow: 1;
+            height: calc(100vh - 45px);
+            position: relative;
+        }
+
+        /* Sidebar File Explorer */
+        aside {
+            width: 260px;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 10px 14px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tree-root {
+            padding: 8px 0;
+        }
+
+        .tree-item {
+            display: flex;
+            align-items: center;
+            padding: 6px 14px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #cccccc;
+            gap: 8px;
+        }
+
+        .tree-item:hover {
+            background-color: var(--bg-hover);
+        }
+
+        .tree-item.active {
+            background-color: #37373d;
+            color: white;
+        }
+
+        .tree-folder {
+            font-weight: 500;
+            color: #e2b342;
+        }
+
+        .folder-children {
+            padding-left: 20px;
+            display: block;
+        }
+
+        .folder-children.collapsed {
+            display: none;
+        }
+
+        /* Editor Wrapper */
         main {
             flex-grow: 1;
+            background-color: var(--bg-editor);
             position: relative;
         }
 
         textarea {
             width: 100%;
             height: 100%;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            background-color: var(--bg-editor);
+            color: #d4d4d4;
             border: none;
             padding: 16px;
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 16px; /* 16px prevents iOS/Android auto-zoom on focus */
+            font-family: 'Fira Code', Consolas, Monaco, monospace;
+            font-size: 16px;
             line-height: 1.5;
-            resize: none;
             outline: none;
+            resize: none;
+            user-select: text;
         }
+
+        /* Context Menu styling */
+        #context-menu {
+            position: absolute;
+            background-color: #252526;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+            display: none;
+            flex-direction: column;
+            padding: 4px 0;
+            z-index: 1000;
+            border-radius: 4px;
+            min-width: 150px;
+        }
+
+        .menu-item {
+            padding: 8px 14px;
+            font-size: 13px;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        .menu-item:hover {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        /* Utility Icons using CSS shapes to prevent external asset dependencies */
+        .icon-folder::before { content: "📁"; }
+        .icon-file::before { content: "📄"; }
     </style>
 </head>
 <body>
 
     <header>
-        <button id="btn-open">Open File</button>
-        <button id="btn-save">Save</button>
-        <button id="btn-save-as">Save As...</button>
-        <span id="file-status">No file open (Changes will be temporary)</span>
+        <div class="controls">
+            <button id="btn-new-folder">New Folder</button>
+            <button id="btn-new-file">New File</button>
+            <button id="btn-save">Save File</button>
+        </div>
+        <div id="file-title">No file open</div>
     </header>
 
-    <main>
-        <textarea id="editor" spellcheck="false" placeholder="Write or open your code here..."></textarea>
-    </main>
+    <div class="workspace">
+        <aside>
+            <div class="sidebar-header">EXPLORER</div>
+            <div class="tree-root" id="explorer-root"></div>
+        </aside>
+
+        <main>
+            <textarea id="editor" spellcheck="false" placeholder="// Select a file from the explorer to begin coding..."></textarea>
+        </main>
+    </div>
+
+    <!-- Right-Click Context Menu -->
+    <div id="context-menu">
+        <div class="menu-item" id="ctx-new-file">New File...</div>
+        <div class="menu-item" id="ctx-rename">Rename...</div>
+        <div class="menu-item" id="ctx-delete" style="color: #f85149;">Delete</div>
+    </div>
 
     <script>
-        let fileHandle = null;
+        // State Management 
+        // Emulating a virtual tree filesystem persisting into LocalStorage
+        let fsData = JSON.parse(localStorage.getItem('v_ide_fs')) || {
+            root: {
+                id: 'root',
+                type: 'folder',
+                name: 'Workspace',
+                children: []
+            }
+        };
+
+        let activeFileId = null;
+        let rightClickedItemId = null;
+
+        const explorerRoot = document.getElementById('explorer-root');
         const editor = document.getElementById('editor');
-        const btnOpen = document.getElementById('btn-open');
-        const btnSave = document.getElementById('btn-save');
-        const btnSaveAs = document.getElementById('btn-save-as');
-        const fileStatus = document.getElementById('file-status');
+        const fileTitle = document.getElementById('file-title');
+        const contextMenu = document.getElementById('context-menu');
 
-        // Verify API Support (Fallback UI handled gracefully via alerts)
-        const hasFileSystemAccess = 'showOpenFilePicker' in window;
-        if (!hasFileSystemAccess) {
-            fileStatus.textContent = "Local file saving limited on this browser. Use 'Save As' to download.";
+        // Helpers
+        function saveToStorage() {
+            localStorage.setItem('v_ide_fs', JSON.stringify(fsData));
         }
 
-        async function openFile() {
-            try {
-                if (!hasFileSystemAccess) {
-                    alert("Your browser doesn't support direct file system access. Copy/Paste code or switch to Chrome/Edge.");
-                    return;
+        function generateId() {
+            return 'node_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        function findNode(id, node = fsData.root) {
+            if (node.id === id) return node;
+            if (node.children) {
+                for (let child of node.children) {
+                    let found = findNode(id, child);
+                    if (found) return found;
                 }
-                [fileHandle] = await window.showOpenFilePicker({
-                    multiple: false
+            }
+            return null;
+        }
+
+        function deleteNode(id, node = fsData.root) {
+            if (!node.children) return false;
+            const index = node.children.findIndex(child => child.id === id);
+            if (index !== -1) {
+                node.children.splice(index, 1);
+                return true;
+            }
+            for (let child of node.children) {
+                if (deleteNode(id, child)) return true;
+            }
+            return false;
+        }
+
+        // DOM Rendering Engine for File Tree
+        function renderTree() {
+            explorerRoot.innerHTML = '';
+            fsData.root.children.forEach(child => {
+                explorerRoot.appendChild(createDOMNode(child));
+            });
+        }
+
+        function createDOMNode(node) {
+            const container = document.createElement('div');
+            
+            const item = document.createElement('div');
+            item.className = `tree-item ${node.type === 'folder' ? 'tree-folder' : 'tree-file'}`;
+            if (node.id === activeFileId) item.classList.add('active');
+            item.dataset.id = node.id;
+            
+            const icon = document.createElement('span');
+            icon.className = node.type === 'folder' ? 'icon-folder' : 'icon-file';
+            
+            const label = document.createElement('span');
+            label.textContent = node.name;
+            
+            item.appendChild(icon);
+            item.appendChild(label);
+            container.appendChild(item);
+
+            if (node.type === 'folder') {
+                const childrenContainer = document.createElement('div');
+                childrenContainer.className = 'folder-children';
+                childrenContainer.dataset.parentId = node.id;
+                
+                // Keep tracks of collapse states smoothly
+                if (node.collapsed) childrenContainer.classList.add('collapsed');
+
+                node.children.forEach(child => {
+                    childrenContainer.appendChild(createDOMNode(child));
                 });
-                const file = await fileHandle.getFile();
-                editor.value = await file.text();
-                fileStatus.textContent = `Editing: ${file.name}`;
-            } catch (err) {
-                if (err.name !== 'AbortError') {
-                    console.error(err);
-                    alert('Error opening file.');
-                }
-            }
-        }
+                container.appendChild(childrenContainer);
 
-        async function writeFile(handle, contents) {
-            try {
-                const writable = await handle.createWritable();
-                await writable.write(contents);
-                await writable.close();
-                const file = await handle.getFile();
-                fileStatus.textContent = `Saved: ${file.name}`;
-            } catch (err) {
-                console.error(err);
-                alert('Failed to save changes.');
-            }
-        }
-
-        async function saveFile() {
-            if (fileHandle) {
-                await writeFile(fileHandle, editor.value);
+                // Handle folder toggling
+                item.addEventListener('click', (e) => {
+                    if (e.target.closest('.tree-item')) {
+                        node.collapsed = !node.collapsed;
+                        childrenContainer.classList.toggle('collapsed');
+                        saveToStorage();
+                    }
+                });
             } else {
-                await saveFileAs();
+                // Handle file loading
+                item.addEventListener('click', () => {
+                    selectFile(node.id);
+                });
             }
-        }
 
-        async function saveFileAs() {
-            try {
-                if (hasFileSystemAccess) {
-                    fileHandle = await window.showSaveFilePicker();
-                    await writeFile(fileHandle, editor.value);
-                } else {
-                    // Fallback for browsers/tablets lacking File System Access API
-                    const blob = new Blob([editor.value], { type: 'text/plain' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'script.js';
-                    a.click();
-                    URL.revokeObjectURL(url);
-                }
-            } catch (err) {
-                if (err.name !== 'AbortError') {
-                    console.error(err);
-                    alert('Error during Save As.');
-                }
-            }
-        }
-
-        // Event Listeners
-        btnOpen.addEventListener('click', openFile);
-        btnSave.addEventListener('click', saveFile);
-        btnSaveAs.addEventListener('click', saveFileAs);
-
-        // Keyboard Shortcuts (Ctrl + S / Cmd + S)
-        window.addEventListener('keydown', (e) => {
-            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            // Universal Context Menu triggers
+            item.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
-                saveFile();
+                e.stopPropagation();
+                showContextMenu(e.clientX, e.clientY, node.id);
+            });
+
+            return container;
+        }
+
+        function selectFile(id) {
+            if (activeFileId) {
+                // Auto-save current open file cache before shift
+                const currentFile = findNode(activeFileId);
+                if (currentFile) currentFile.content = editor.value;
+            }
+            
+            activeFileId = id;
+            const file = findNode(id);
+            editor.value = file.content || '';
+            fileTitle.textContent = file.name;
+            
+            document.querySelectorAll('.tree-item').forEach(el => el.classList.remove('active'));
+            const activeEl = document.querySelector(`[data-id="${id}"]`);
+            if (activeEl) activeEl.classList.add('active');
+            saveToStorage();
+        }
+
+        // Core Mutators
+        function createNewItem(type, parentId = 'root') {
+            const name = prompt(`Enter ${type} name:`);
+            if (!name) return;
+
+            const targetParent = findNode(parentId);
+            if (!targetParent || targetParent.type !== 'folder') return;
+
+            const newItem = {
+                id: generateId(),
+                type: type,
+                name: name,
+                ...(type === 'folder' ? { children: [], collapsed: false } : { content: '' })
+            };
+
+            targetParent.children.push(newItem);
+            saveToStorage();
+            renderTree();
+            
+            if (type === 'file') {
+                selectFile(newItem.id);
+            }
+        }
+
+        // Context Menu Controls
+        function showContextMenu(x, y, itemId) {
+            rightClickedItemId = itemId;
+            const targetNode = findNode(itemId);
+            
+            // Contextually isolate options: Hide "New File" option if target clicked is already a file
+            const newFileOption = document.getElementById('ctx-new-file');
+            if (targetNode.type === 'file') {
+                newFileOption.style.display = 'none';
+            } else {
+                newFileOption.style.display = 'block';
+            }
+
+            contextMenu.style.left = `${x}px`;
+            contextMenu.style.top = `${y}px`;
+            contextMenu.style.display = 'flex';
+        }
+
+        function hideContextMenu() {
+            contextMenu.style.display = 'none';
+        }
+
+        // Event Interceptors
+        document.getElementById('btn-new-folder').addEventListener('click', () => createNewItem('folder', 'root'));
+        document.getElementById('btn-new-file').addEventListener('click', () => createNewItem('file', 'root'));
+        
+        document.getElementById('btn-save').addEventListener('click', () => {
+            if (!activeFileId) return;
+            const file = findNode(activeFileId);
+            if (file) {
+                file.content = editor.value;
+                saveToStorage();
+                alert(`Saved: ${file.name} to local local-storage container context.`);
             }
         });
+
+        // Context Operations
+        document.getElementById('ctx-new-file').addEventListener('click', () => {
+            createNewItem('file', rightClickedItemId);
+            hideContextMenu();
+        });
+
+        document.getElementById('ctx-rename').addEventListener('click', () => {
+            const targetNode = findNode(rightClickedItemId);
+            if (targetNode) {
+                const newName = prompt("Rename element to:", targetNode.name);
+                if (newName) {
+                    targetNode.name = newName;
+                    if (activeFileId === rightClickedItemId) fileTitle.textContent = newName;
+                    saveToStorage();
+                    renderTree();
+                }
+            }
+            hideContextMenu();
+        });
+
+        document.getElementById('ctx-delete').addEventListener('click', () => {
+            if (confirm("Are you sure you want to delete this item?")) {
+                deleteNode(rightClickedItemId);
+                if (activeFileId === rightClickedItemId) {
+                    activeFileId = null;
+                    editor.value = '';
+                    fileTitle.textContent = 'No file open';
+                }
+                saveToStorage();
+                renderTree();
+            }
+            hideContextMenu();
+        });
+
+        window.addEventListener('click', hideContextMenu);
+        window.addEventListener('blur', hideContextMenu);
+
+        // Initializer Run execution
+        renderTree();
     </script>
 </body>
 </html>
+
