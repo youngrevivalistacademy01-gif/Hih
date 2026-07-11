@@ -16,26 +16,34 @@
     
     <style>
         :root {
-            --bg-dark: #181818;
-            --bg-sidebar: #202020;
-            --bg-editor: #1e1e1e;
-            --bg-hover: #2a2a2a;
-            --text-main: #e0e0e0;
-            --text-muted: #858585;
-            --accent: #007acc;
-            --border: #333333;
+            --bg-dark: #0c0d10;
+            --bg-sidebar: #121318;
+            --bg-editor: #161821;
+            --bg-hover: #1f2230;
+            --text-main: #f0f3f8;
+            --text-muted: #79829a;
+            --accent: #2f6bf0;
+            --accent-glow: rgba(47, 107, 240, 0.2);
+            --border: #222634;
             --live-panel-bg: #ffffff;
+            
+            /* File Icon Colors */
+            --color-html: #e34c26;
+            --color-css: #264de4;
+            --color-js: #f7df1e;
+            --color-folder: #f3b032;
         }
 
         [data-theme="light"] {
-            --bg-dark: #e0e0e0;
-            --bg-sidebar: #f3f3f3;
+            --bg-dark: #eef1f6;
+            --bg-sidebar: #f8fafc;
             --bg-editor: #ffffff;
-            --bg-hover: #e4e4e7;
-            --text-main: #1f1f1f;
-            --text-muted: #6e6e73;
-            --accent: #007acc;
-            --border: #cccccc;
+            --bg-hover: #e2e8f0;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --accent: #2f6bf0;
+            --accent-glow: rgba(47, 107, 240, 0.1);
+            --border: #cbd5e1;
             --live-panel-bg: #ffffff;
         }
 
@@ -57,20 +65,21 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-dark);
             color: var(--text-main);
             display: flex;
             flex-direction: column;
         }
 
+        /* Top Action Bar (Premium Glassmorphism Style) */
         header {
             background-color: var(--bg-sidebar);
-            height: 50px;
+            height: 55px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 12px;
+            padding: 0 16px;
             border-bottom: 1px solid var(--border);
             z-index: 10;
             flex-shrink: 0;
@@ -78,29 +87,45 @@
 
         .controls {
             display: flex;
-            gap: 6px;
+            gap: 8px;
         }
 
         button, .toggle-theme-btn {
             background-color: var(--bg-hover);
             color: var(--text-main);
             border: 1px solid var(--border);
-            padding: 6px 10px;
-            border-radius: 6px;
+            padding: 7px 14px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 13px;
-            font-weight: 500;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        button:hover, .toggle-theme-btn:hover {
+            background-color: var(--border);
+            border-color: var(--text-muted);
+            transform: translateY(-1px);
         }
 
         button:active, .toggle-theme-btn:active {
             background-color: var(--accent);
             color: white;
+            border-color: var(--accent);
+            transform: translateY(0);
         }
 
         #file-title {
-            font-size: 12px;
+            font-size: 13px;
             color: var(--text-muted);
-            font-family: monospace;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            background: var(--bg-dark);
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
             max-width: 40%;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -110,20 +135,21 @@
         .workspace {
             display: flex;
             flex-grow: 1;
-            height: calc(100% - 50px);
+            height: calc(100% - 55px);
             position: relative;
             overflow: hidden;
         }
 
+        /* Sidebar File Explorer (Sleek Sidebar Design) */
         aside {
-            width: 240px;
+            width: 250px;
             background-color: var(--bg-sidebar);
             border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             overflow: hidden;
-            transition: transform 0.2s ease-in-out;
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             flex-shrink: 0;
             z-index: 5;
         }
@@ -135,27 +161,30 @@
         }
 
         .sidebar-header {
-            padding: 12px 14px;
+            padding: 16px 16px 8px 16px;
             font-size: 11px;
-            font-weight: bold;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
             color: var(--text-muted);
-            border-bottom: 1px solid var(--border);
         }
 
         .tree-root {
-            padding: 6px 0;
+            padding: 6px;
         }
 
         .tree-item {
             display: flex;
             align-items: center;
-            padding: 10px 14px;
+            padding: 10px 12px;
             cursor: pointer;
             font-size: 14px;
+            font-weight: 500;
             color: var(--text-main);
-            gap: 8px;
+            gap: 10px;
+            border-radius: 6px;
+            margin-bottom: 2px;
+            transition: all 0.15s ease;
         }
 
         .tree-item:hover {
@@ -163,17 +192,20 @@
         }
 
         .tree-item.active {
-            background-color: var(--accent);
-            color: white;
+            background-color: var(--accent-glow);
+            color: var(--accent);
+            border: 1px solid rgba(47, 107, 240, 0.3);
         }
 
         .tree-folder {
-            font-weight: 500;
+            font-weight: 600;
         }
 
         .folder-children {
-            padding-left: 16px;
+            padding-left: 14px;
             display: block;
+            border-left: 1px dashed var(--border);
+            margin-left: 22px;
         }
 
         .folder-children.collapsed {
@@ -181,7 +213,7 @@
         }
 
         .sidebar-footer {
-            padding: 10px;
+            padding: 12px;
             border-top: 1px solid var(--border);
             background-color: var(--bg-sidebar);
             display: flex;
@@ -189,7 +221,7 @@
 
         .toggle-theme-btn {
             width: 100%;
-            text-align: center;
+            justify-content: center;
         }
 
         /* Editor and Live Preview Wrapper Layout */
@@ -211,7 +243,7 @@
             overflow: hidden;
         }
 
-        /* Live Preview Window Frame Panel */
+        /* Live Preview Window Frame Panel (Sleek Dashboard Look) */
         #live-server-panel {
             flex-basis: 50%;
             height: 100%;
@@ -220,31 +252,48 @@
             display: none;
             flex-direction: column;
             overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #live-server-panel.fullscreen-preview {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw !important;
+            height: 100vh !important;
+            flex-basis: 100% !important;
+            z-index: 2000;
+            border: none;
         }
 
         .live-panel-header {
             background-color: var(--bg-sidebar);
-            height: 35px;
+            height: 40px;
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 0 12px;
-            color: var(--text-muted);
+            color: var(--text-main);
             font-size: 11px;
-            font-weight: bold;
-            letter-spacing: 0.5px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .live-panel-actions {
+            display: flex;
+            gap: 6px;
         }
 
         .live-panel-header button {
-            padding: 2px 6px;
+            padding: 4px 10px;
             font-size: 11px;
-            border-radius: 4px;
+            border-radius: 6px;
         }
 
         #live-preview-frame {
             width: 100%;
-            height: calc(100% - 35px);
+            height: calc(100% - 40px);
             border: none;
             background-color: white;
         }
@@ -252,7 +301,7 @@
         .CodeMirror {
             height: 100% !important;
             width: 100% !important;
-            font-family: 'Fira Code', Consolas, Monaco, monospace;
+            font-family: 'JetBrains Mono', 'Fira Code', Consolas, Monaco, monospace;
             font-size: 15px;
             background-color: var(--bg-editor) !important;
         }
@@ -264,37 +313,50 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        /* Context Menu Overlay adjustments */
+        /* UI/UX Context Menu Overlay */
         .custom-menu {
             position: absolute;
-            background-color: var(--bg-sidebar);
-            border: 1px solid var(--border);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+            background-color: #1a1d26;
+            border: 1px solid #2d3346;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             display: none;
             flex-direction: column;
-            padding: 4px 0;
+            padding: 6px 0;
             z-index: 1000;
-            border-radius: 6px;
-            min-width: 160px;
+            border-radius: 10px;
+            min-width: 180px;
+            backdrop-filter: blur(10px);
+        }
+
+        [data-theme="light"] .custom-menu {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
 
         .menu-item {
-            padding: 12px 16px;
-            font-size: 14px;
+            padding: 10px 16px;
+            font-size: 13.5px;
+            font-weight: 500;
             color: var(--text-main);
             cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            transition: background 0.1s ease;
         }
 
         .menu-item:hover {
             background-color: var(--accent);
             color: white;
         }
+
+        .menu-item:hover .menu-shortcut {
+            color: rgba(255, 255, 255, 0.7);
+        }
         
         .menu-item.disabled {
-            opacity: 0.4;
+            opacity: 0.3;
             pointer-events: none;
         }
 
@@ -304,8 +366,33 @@
             font-family: monospace;
         }
 
-        .icon-folder::before { content: "📁"; }
-        .icon-file::before { content: "📄"; }
+        /* Custom Vector-Matched SVG Icon Injections */
+        .ide-icon {
+            width: 18px;
+            height: 18px;
+            display: inline-block;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            flex-shrink: 0;
+        }
+
+        /* Professional Colored Content Symbol SVGs */
+        .icon-folder {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23f3b032"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>');
+        }
+        .icon-html {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23e34c26"><path d="M5 2h14l-1.22 13.39L12 19.35l-5.78-3.95L5 2zm11.45 4.67H8.32l.17 1.83h7.79l-.26 2.82L12 12.63l-4.02-1.31-.09-1.03H6.06l.19 2.45L12 15.35l5.75-2.63.7-7.05z"/></svg>');
+        }
+        .icon-css {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23264de4"><path d="M5 2h14l-1.22 13.39L12 19.35l-5.78-3.95L5 2zm11.39 4.67H7.72l.19 2.05h8.29l-.26 2.72L12 12.75l-3.95-1.22-.09-.92H6.03l.18 2.37L12 15.47l5.79-2.72.6-6.08z"/></svg>');
+        }
+        .icon-js {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23f7df1e"><path d="M3 3h18v18H3V3zm11.72 10.37c-.38-.59-.94-.92-1.63-.92-.66 0-1.07.31-1.07.77 0 .54.43.74 1.18.99 1.47.51 2.53.94 2.53 2.59 0 1.51-1.12 2.51-2.78 2.51-1.61 0-2.53-.74-3.11-1.74l1.3-.82c.36.59.82.94 1.59.94.74 0 1.15-.38 1.15-.87 0-.64-.46-.84-1.35-1.15-1.4-.49-2.35-1.05-2.35-2.48 0-1.4 1.05-2.37 2.65-2.37 1.35 0 2.22.56 2.76 1.48l-1.22.87z"/></svg>');
+        }
+        .icon-unknown {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2379829a"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>');
+        }
 
         @media (max-width: 600px) {
             aside {
@@ -362,7 +449,10 @@
             <div id="live-server-panel">
                 <div class="live-panel-header">
                     <span>LIVE SERVER PREVIEW</span>
-                    <button id="btn-close-live">Close</button>
+                    <div class="live-panel-actions">
+                        <button id="btn-fullscreen-live" style="background:#222634; color:white;">Full Screen</button>
+                        <button id="btn-close-live" style="background:#ee4646; color:white;">Close</button>
+                    </div>
                 </div>
                 <iframe id="live-preview-frame" sandbox="allow-scripts allow-modals"></iframe>
             </div>
@@ -373,6 +463,7 @@
     <div id="context-menu" class="custom-menu">
         <div class="menu-item" id="ctx-new-file">New File...</div>
         <div class="menu-item" id="ctx-rename">Rename...</div>
+        <div class="menu-item" id="ctx-live" style="color: #4ade80; font-weight: bold; display: none;">Go Live 🟢</div>
         <div class="menu-item" id="ctx-delete" style="color: #f85149;">Delete</div>
     </div>
 
@@ -382,8 +473,8 @@
         <div class="menu-item" id="edit-ctx-cut">Cut <span class="menu-shortcut">Ctrl+X</span></div>
         <div class="menu-item" id="edit-ctx-paste">Paste <span class="menu-shortcut">Ctrl+V</span></div>
         <div class="menu-item" id="edit-ctx-selectall">Select All <span class="menu-shortcut">Ctrl+A</span></div>
-        <hr style="border: 0; border-top: 1px solid var(--border); margin: 4px 0;">
-        <div class="menu-item" id="edit-ctx-live" style="color: #4ade80; font-weight: bold;">Go Live 🟢</div>
+        <div id="editor-ctx-separator" style="border-top: 1px solid var(--border); margin: 4px 0; display: none;"></div>
+        <div class="menu-item" id="edit-ctx-live" style="color: #4ade80; font-weight: bold; display: none;">Go Live 🟢</div>
     </div>
 
     <script>
@@ -408,6 +499,7 @@
         const liveServerPanel = document.getElementById('live-server-panel');
         const livePreviewFrame = document.getElementById('live-preview-frame');
         const btnCloseLive = document.getElementById('btn-close-live');
+        const btnFullscreenLive = document.getElementById('btn-fullscreen-live');
 
         const cmInstance = CodeMirror.fromTextArea(document.getElementById('editor'), {
             lineNumbers: true,
@@ -421,7 +513,6 @@
             window.scrollTo(0, 0);
         });
         
-        // Debounced compilation update pipeline for Live Server rendering loops
         cmInstance.on("change", () => {
             window.scrollTo(0, 0);
             if (liveServerActive) {
@@ -470,22 +561,19 @@
         });
         setTheme(currentTheme); 
 
-        // Live Server Dependency Assembly Pipeline 
+        // Live Server Framework Interface Update
         function updateLiveServer() {
             if (!activeFileId || !liveServerActive) return;
             
             const currentFile = findNode(activeFileId);
             if (!currentFile) return;
 
-            // Compilation parser mapping internal CSS/JS reference paths to dynamic source outputs
             let codeContent = cmInstance.getValue();
             let extension = currentFile.name.split('.').pop().toLowerCase();
 
             if (extension === 'html') {
-                // Parse and inject project siblings inline to emulate real multi-file resolution
                 let parsedDOM = new DOMParser().parseFromString(codeContent, 'text/html');
                 
-                // CSS Sheet dependency injection
                 parsedDOM.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
                     let href = link.getAttribute('href');
                     if (href && !href.startsWith('http')) {
@@ -498,7 +586,6 @@
                     }
                 });
 
-                // Script block dependency injection
                 parsedDOM.querySelectorAll('script[src]').forEach(script => {
                     let src = script.getAttribute('src');
                     if (src && !src.startsWith('http')) {
@@ -512,13 +599,8 @@
                 });
 
                 codeContent = parsedDOM.documentElement.outerHTML;
-            } else if (extension === 'css') {
-                codeContent = `<style>${codeContent}</style><div style='padding:10px;font-family:sans-serif;color:#888;'>CSS Source File Live Preview Active</div>`;
-            } else if (extension === 'js') {
-                codeContent = `<script>${codeContent}<\/script><div style='padding:10px;font-family:sans-serif;color:#888;'>JS Source File Execution Output Layer View Active. Open logs to view stack tracking metrics.</div>`;
             }
 
-            // Safe Blob generation loop to decouple workspace sandbox executions securely
             const blob = new Blob([codeContent], { type: 'text/html' });
             const oldUrl = livePreviewFrame.src;
             livePreviewFrame.src = URL.createObjectURL(blob);
@@ -527,7 +609,6 @@
 
         function findSiblingByName(name) {
             if (!fsData.root.children) return null;
-            // Evaluates direct local level workspace files
             return fsData.root.children.find(child => child.name === name);
         }
 
@@ -538,6 +619,8 @@
                 updateLiveServer();
             } else {
                 liveServerPanel.style.display = 'none';
+                liveServerPanel.classList.remove('fullscreen-preview');
+                btnFullscreenLive.textContent = 'Full Screen';
                 livePreviewFrame.src = 'about:blank';
             }
             cmInstance.refresh();
@@ -545,7 +628,26 @@
 
         btnCloseLive.addEventListener('click', toggleLiveServer);
 
-        // Editor Context Operations Context Menu Interface Handler
+        // Full Screen Toggle Feature Action
+        btnFullscreenLive.addEventListener('click', () => {
+            liveServerPanel.classList.toggle('fullscreen-preview');
+            if (liveServerPanel.classList.contains('fullscreen-preview')) {
+                btnFullscreenLive.textContent = 'Exit Full Screen';
+            } else {
+                btnFullscreenLive.textContent = 'Full Screen';
+            }
+        });
+
+        // Context Matching Logic based on Ext Types
+        function getIconClass(name, type) {
+            if (type === 'folder') return 'icon-folder';
+            let ext = name.split('.').pop().toLowerCase();
+            if (ext === 'html' || ext === 'htm') return 'icon-html';
+            if (ext === 'css') return 'icon-css';
+            if (ext === 'js') return 'icon-js';
+            return 'icon-unknown';
+        }
+
         const editorElement = document.querySelector('.CodeMirror');
         
         const triggerEditorMenu = (e, clientX, clientY) => {
@@ -555,13 +657,26 @@
 
             const hasSelection = cmInstance.somethingSelected();
             
-            // Toggle element configurations contextually relative to user text selection highlights
             if (hasSelection) {
                 document.getElementById('edit-ctx-copy').classList.remove('disabled');
                 document.getElementById('edit-ctx-cut').classList.remove('disabled');
             } else {
                 document.getElementById('edit-ctx-copy').classList.add('disabled');
                 document.getElementById('edit-ctx-cut').classList.add('disabled');
+            }
+
+            // Go Live constraint targeting active editor workspace configurations
+            const liveOption = document.getElementById('edit-ctx-live');
+            const separator = document.getElementById('editor-ctx-separator');
+            if (activeFileId) {
+                const activeFile = findNode(activeFileId);
+                if (activeFile && activeFile.name.split('.').pop().toLowerCase() === 'html') {
+                    liveOption.style.display = 'flex';
+                    separator.style.display = 'block';
+                } else {
+                    liveOption.style.display = 'none';
+                    separator.style.display = 'none';
+                }
             }
 
             editorContextMenu.style.left = `${clientX}px`;
@@ -571,7 +686,6 @@
 
         editorElement.addEventListener('contextmenu', (e) => triggerEditorMenu(e, e.clientX, e.clientY));
 
-        // Touch long press integration directly targeting the CodeMirror tracking window
         let editorPressTimer;
         editorElement.addEventListener('touchstart', (e) => {
             if(e.touches.length === 1) {
@@ -583,7 +697,6 @@
         editorElement.addEventListener('touchend', () => clearTimeout(editorPressTimer));
         editorElement.addEventListener('touchmove', () => clearTimeout(editorPressTimer));
 
-        // Command Bindings for Workspace Context Options Actions
         document.getElementById('edit-ctx-copy').addEventListener('click', () => {
             document.execCommand('copy');
             hideContextMenu();
@@ -596,11 +709,9 @@
 
         document.getElementById('edit-ctx-paste').addEventListener('click', async () => {
             try {
-                // Clipboard API read access fallback logic for modern secure frameworks
                 const text = await navigator.clipboard.readText();
                 cmInstance.replaceSelection(text);
             } catch (err) {
-                // Fallback context execution message if system denies manual macro programmatic reads
                 alert("Use your tablet's native paste pop-up button directly over the cursor point if clipboard reading access is restricted.");
             }
             hideContextMenu();
@@ -616,7 +727,6 @@
             hideContextMenu();
         });
 
-        // Virtual Filesystem Helper Operations
         function saveToStorage() {
             localStorage.setItem('v_ide_fs', JSON.stringify(fsData));
         }
@@ -665,7 +775,7 @@
             item.dataset.id = node.id;
             
             const icon = document.createElement('span');
-            icon.className = node.type === 'folder' ? 'icon-folder' : 'icon-file';
+            icon.className = `ide-icon ${getIconClass(node.name, node.type)}`;
             
             const label = document.createElement('span');
             label.textContent = node.name;
@@ -776,7 +886,16 @@
             const targetNode = findNode(itemId);
             
             const newFileOption = document.getElementById('ctx-new-file');
-            newFileOption.style.display = targetNode.type === 'file' ? 'none' : 'block';
+            const liveOption = document.getElementById('ctx-live');
+            
+            newFileOption.style.display = targetNode.type === 'file' ? 'none' : 'flex';
+
+            // Sidebar configuration: Display Go Live context item only if element matches HTML requirements
+            if (targetNode.type === 'file' && targetNode.name.split('.').pop().toLowerCase() === 'html') {
+                liveOption.style.display = 'flex';
+            } else {
+                liveOption.style.display = 'none';
+            }
 
             contextMenu.style.left = `${x}px`;
             contextMenu.style.top = `${y}px`;
@@ -802,6 +921,12 @@
 
         document.getElementById('ctx-new-file').addEventListener('click', () => {
             createNewItem('file', rightClickedItemId);
+            hideContextMenu();
+        });
+
+        document.getElementById('ctx-live').addEventListener('click', () => {
+            selectFile(rightClickedItemId);
+            toggleLiveServer();
             hideContextMenu();
         });
 
@@ -840,3 +965,4 @@
     </script>
 </body>
 </html>
+
