@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Web IDE Pro</title>
-    <!-- CodeMirror 5 CDN for light/dark syntax highlighting -->
+    <title>Vivid IDE Pro</title>
+    <!-- CodeMirror 5 CDN Integration -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/monokai.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/neo.min.css">
@@ -16,37 +16,33 @@
     
     <style>
         :root {
-            --bg-dark: #0c0d10;
-            --bg-sidebar: #121318;
-            --bg-editor: #161821;
-            --bg-hover: #1f2230;
-            --text-main: #f0f3f8;
-            --text-muted: #79829a;
-            --accent: #2f6bf0;
-            --accent-glow: rgba(47, 107, 240, 0.2);
-            --border: #222634;
+            --bg-dark: #08090c;
+            --bg-sidebar: #0e1116;
+            --bg-editor: #12141c;
+            --bg-hover: #1b1f2b;
+            --text-main: #f1f5f9;
+            --text-muted: #64748b;
+            --accent: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, 0.15);
+            --border: #1e293b;
             --live-panel-bg: #ffffff;
-            --modal-bg: rgba(22, 24, 33, 0.85);
-            
-            /* File Icon Colors */
-            --color-html: #e34c26;
-            --color-css: #264de4;
-            --color-js: #f7df1e;
-            --color-folder: #f3b032;
+            --modal-bg: rgba(15, 23, 42, 0.9);
+            --tabs-bg: #0b0d13;
         }
 
         [data-theme="light"] {
-            --bg-dark: #eef1f6;
-            --bg-sidebar: #f8fafc;
-            --bg-editor: #ffffff;
+            --bg-dark: #f1f5f9;
+            --bg-sidebar: #ffffff;
+            --bg-editor: #f8fafc;
             --bg-hover: #e2e8f0;
             --text-main: #0f172a;
-            --text-muted: #64748b;
-            --accent: #2f6bf0;
-            --accent-glow: rgba(47, 107, 240, 0.1);
+            --text-muted: #94a3b8;
+            --accent: #2563eb;
+            --accent-glow: rgba(37, 99, 235, 0.1);
             --border: #cbd5e1;
             --live-panel-bg: #ffffff;
-            --modal-bg: rgba(255, 255, 255, 0.9);
+            --modal-bg: rgba(255, 255, 255, 0.95);
+            --tabs-bg: #e2e8f0;
         }
 
         html, body {
@@ -54,27 +50,25 @@
             width: 100%;
             overflow: hidden;
             position: fixed;
-            top: 0;
-            left: 0;
+            top: 0; left: 0;
         }
 
         * {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-dark);
             color: var(--text-main);
             display: flex;
             flex-direction: column;
         }
 
-        /* Top Action Bar */
+        /* Premium Glass Header Bar */
         header {
             background-color: var(--bg-sidebar);
             height: 55px;
@@ -83,20 +77,21 @@
             justify-content: space-between;
             padding: 0 16px;
             border-bottom: 1px solid var(--border);
-            z-index: 10;
+            z-index: 100;
             flex-shrink: 0;
         }
 
         .controls {
             display: flex;
             gap: 8px;
+            align-items: center;
         }
 
-        button, .toggle-theme-btn {
+        button {
             background-color: var(--bg-hover);
             color: var(--text-main);
             border: 1px solid var(--border);
-            padding: 7px 14px;
+            padding: 8px 14px;
             border-radius: 8px;
             cursor: pointer;
             font-size: 13px;
@@ -107,53 +102,62 @@
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        button:hover, .toggle-theme-btn:hover {
+        button:hover {
             background-color: var(--border);
             border-color: var(--text-muted);
             transform: translateY(-1px);
         }
 
-        button:active, .toggle-theme-btn:active {
-            background-color: var(--accent);
-            color: white;
-            border-color: var(--accent);
+        button:active {
             transform: translateY(0);
         }
 
+        .btn-accent {
+            background-color: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+        .btn-accent:hover {
+            background-color: #2563eb;
+            border-color: #2563eb;
+        }
+
         #file-title {
-            font-size: 13px;
+            font-size: 12px;
             color: var(--text-muted);
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-family: ui-monospace, SFMono-Regular, monospace;
             background: var(--bg-dark);
             padding: 6px 14px;
             border-radius: 20px;
             border: 1px solid var(--border);
-            max-width: 40%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
         }
 
+        /* Workspace Core Splits */
         .workspace {
             display: flex;
             flex-grow: 1;
-            height: calc(100% - 55px);
+            height: calc(100% - 80px); /* Accounted for Header + StatusBar */
             position: relative;
             overflow: hidden;
         }
 
-        /* Sidebar File Explorer */
+        /* Sidebar Slide Layout */
         aside {
-            width: 250px;
+            width: 260px;
             background-color: var(--bg-sidebar);
             border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
             overflow: hidden;
-            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             flex-shrink: 0;
-            z-index: 5;
+            z-index: 50;
+        }
+
+        aside.collapsed-sidebar {
+            width: 0px;
+            transform: translateX(-100%);
+            border-right: none;
         }
 
         .sidebar-content {
@@ -163,78 +167,118 @@
         }
 
         .sidebar-header {
-            padding: 16px 16px 8px 16px;
+            padding: 16px;
             font-size: 11px;
-            font-weight: 700;
+            font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 1.5px;
             color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .tree-root {
-            padding: 6px;
-        }
+        .tree-root { padding: 8px; }
 
         .tree-item {
             display: flex;
             align-items: center;
-            padding: 10px 12px;
+            padding: 9px 12px;
             cursor: pointer;
             font-size: 14px;
             font-weight: 500;
             color: var(--text-main);
             gap: 10px;
-            border-radius: 6px;
-            margin-bottom: 2px;
+            border-radius: 8px;
+            margin-bottom: 3px;
             transition: all 0.15s ease;
         }
 
-        .tree-item:hover {
-            background-color: var(--bg-hover);
-        }
-
+        .tree-item:hover { background-color: var(--bg-hover); }
         .tree-item.active {
             background-color: var(--accent-glow);
             color: var(--accent);
-            border: 1px solid rgba(47, 107, 240, 0.3);
-        }
-
-        .tree-folder {
             font-weight: 600;
         }
 
         .folder-children {
-            padding-left: 14px;
-            display: block;
+            padding-left: 12px;
             border-left: 1px dashed var(--border);
-            margin-left: 22px;
+            margin-left: 20px;
         }
+        .folder-children.collapsed { display: none; }
 
-        .folder-children.collapsed {
-            display: none;
-        }
-
-        .sidebar-footer {
-            padding: 12px;
-            border-top: 1px solid var(--border);
-            background-color: var(--bg-sidebar);
-            display: flex;
-        }
-
-        .toggle-theme-btn {
-            width: 100%;
-            justify-content: center;
-        }
-
-        /* Editor Container Area Layout */
+        /* Modern Tabs Interface Row Layout */
         .editor-container {
             flex-grow: 1;
             background-color: var(--bg-editor);
-            position: relative;
+            display: flex;
+            flex-direction: column;
             overflow: hidden;
             height: 100%;
+        }
+
+        .tabs-bar {
+            height: 40px;
+            background-color: var(--tabs-bg);
+            border-bottom: 1px solid var(--border);
             display: flex;
-            flex-direction: row;
+            overflow-x: auto;
+            align-items: flex-end;
+            padding-left: 8px;
+            flex-shrink: 0;
+        }
+        .tabs-bar::-webkit-scrollbar { display: none; }
+
+        .tab-item {
+            height: 34px;
+            padding: 0 16px;
+            background: transparent;
+            border: 1px solid transparent;
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+
+        .tab-item:hover {
+            background: var(--bg-hover);
+            color: var(--text-main);
+        }
+
+        .tab-item.active {
+            background: var(--bg-editor);
+            color: var(--accent);
+            border-color: var(--border);
+            font-weight: 600;
+        }
+
+        .tab-close {
+            font-size: 14px;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.1s;
+        }
+        .tab-close:hover {
+            background: rgba(255,255,255,0.2);
+            color: #ee4646;
+        }
+
+        .main-editor-split {
+            display: flex;
+            flex-grow: 1;
+            height: calc(100% - 40px);
+            position: relative;
         }
 
         main {
@@ -242,30 +286,25 @@
             flex-basis: 50%;
             height: 100%;
             position: relative;
-            overflow: hidden;
         }
 
-        /* Live Preview Window Frame Panel */
+        /* Live Preview Panel Frame Layout */
         #live-server-panel {
             flex-basis: 50%;
             height: 100%;
             background-color: var(--live-panel-bg);
-            border-left: 2px solid var(--border);
+            border-left: 1px solid var(--border);
             display: none;
             flex-direction: column;
             overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         #live-server-panel.fullscreen-preview {
             position: fixed;
-            top: 0;
-            left: 0;
+            top: 0; left: 0;
             width: 100vw !important;
             height: 100vh !important;
-            flex-basis: 100% !important;
             z-index: 2000;
-            border: none;
         }
 
         .live-panel-header {
@@ -276,110 +315,39 @@
             align-items: center;
             justify-content: space-between;
             padding: 0 12px;
-            color: var(--text-main);
             font-size: 11px;
             font-weight: 700;
             letter-spacing: 1px;
-        }
-
-        .live-panel-actions {
-            display: flex;
-            gap: 6px;
-        }
-
-        .live-panel-header button {
-            padding: 4px 10px;
-            font-size: 11px;
-            border-radius: 6px;
         }
 
         #live-preview-frame {
             width: 100%;
             height: calc(100% - 40px);
             border: none;
-            background-color: white;
+            background: white;
         }
 
         .CodeMirror {
             height: 100% !important;
             width: 100% !important;
-            font-family: 'JetBrains Mono', 'Fira Code', Consolas, Monaco, monospace;
+            font-family: 'Fira Code', Consolas, Monaco, monospace;
             font-size: 15px;
             background-color: var(--bg-editor) !important;
         }
 
-        .CodeMirror-scroll {
-            height: 100%;
-            overflow-y: auto !important;
-            overflow-x: auto !important;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        /* UI/UX Context Menu Overlays */
-        .custom-menu {
-            position: absolute;
-            background-color: #1a1d26;
-            border: 1px solid #2d3346;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            display: none;
-            flex-direction: column;
-            padding: 6px 0;
-            z-index: 1000;
-            border-radius: 10px;
-            min-width: 180px;
-            backdrop-filter: blur(10px);
-        }
-
-        [data-theme="light"] .custom-menu {
-            background-color: #ffffff;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-
-        .menu-item {
-            padding: 10px 16px;
-            font-size: 13.5px;
-            font-weight: 500;
-            color: var(--text-main);
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: background 0.1s ease;
-        }
-
-        .menu-item:hover {
-            background-color: var(--accent);
-            color: white;
-        }
-
-        .menu-item.disabled {
-            opacity: 0.3;
-            pointer-events: none;
-        }
-
-        .menu-shortcut {
-            font-size: 11px;
-            color: var(--text-muted);
-            font-family: monospace;
-        }
-
-        /* Custom Dynamic Premium Modal Structure */
+        /* High-End Glassmorphism Modal System */
         .modal-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(4px);
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
             z-index: 5000;
             display: flex;
             align-items: center;
             justify-content: center;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.2s ease;
+            transition: opacity 0.25s ease;
         }
 
         .modal-overlay.active {
@@ -390,142 +358,89 @@
         .modal-card {
             background: var(--modal-bg);
             border: 1px solid var(--border);
-            border-radius: 14px;
+            border-radius: 16px;
             width: 90%;
             max-width: 400px;
             padding: 24px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-            transform: scale(0.9);
-            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transform: scale(0.92);
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        .modal-overlay.active .modal-card {
-            transform: scale(1);
-        }
-
-        .modal-title {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 12px;
-            color: var(--text-main);
-        }
-
-        .modal-description {
-            font-size: 13.5px;
-            color: var(--text-muted);
-            margin-bottom: 20px;
-            line-height: 1.4;
-        }
-
+        .modal-overlay.active .modal-card { transform: scale(1); }
+        .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+        .modal-description { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+        
         .modal-input {
             width: 100%;
             background: var(--bg-dark);
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: 10px;
             padding: 12px 14px;
             color: var(--text-main);
             font-size: 14px;
             outline: none;
             margin-bottom: 24px;
-            transition: border-color 0.2s;
         }
+        .modal-input:focus { border-color: var(--accent); }
 
-        .modal-input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px var(--accent-glow);
-        }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
+        .modal-btn { padding: 10px 20px; font-size: 13px; border-radius: 8px; font-weight: 600; cursor: pointer; border: 1px solid transparent; }
+        .modal-btn-cancel { background: transparent; border-color: var(--border); color: var(--text-main); }
+        .modal-btn-confirm { background: var(--accent); color: white; }
+        .modal-btn-danger { background: #ef4444; color: white; }
 
-        .modal-actions {
+        /* Sleek Workspace Status Bar Configuration */
+        .status-bar {
+            height: 25px;
+            background-color: var(--bg-sidebar);
+            border-top: 1px solid var(--border);
             display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
-
-        .modal-btn {
-            padding: 10px 18px;
-            font-size: 13.5px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            border: 1px solid transparent;
-            transition: background 0.15s;
-        }
-
-        .modal-btn-cancel {
-            background: transparent;
-            border-color: var(--border);
-            color: var(--text-main);
-        }
-
-        .modal-btn-cancel:hover {
-            background: var(--bg-hover);
-        }
-
-        .modal-btn-confirm {
-            background: var(--accent);
-            color: #ffffff;
-        }
-
-        .modal-btn-confirm:hover {
-            background: #2556c7;
-        }
-
-        .modal-btn-danger {
-            background: #ee4646;
-            color: #ffffff;
-        }
-
-        .modal-btn-danger:hover {
-            background: #c93434;
-        }
-
-        /* Custom Vector-Matched SVG Icon Injections */
-        .ide-icon {
-            width: 18px;
-            height: 18px;
-            display: inline-block;
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 12px;
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
             flex-shrink: 0;
+            z-index: 100;
         }
+        .status-segment { display: flex; align-items: center; gap: 14px; }
 
-        .icon-folder {
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23f3b032"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>');
+        /* Custom Context Menus */
+        .custom-menu {
+            position: absolute;
+            background-color: var(--bg-sidebar);
+            border: 1px solid var(--border);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+            display: none;
+            flex-direction: column;
+            padding: 6px 0;
+            z-index: 1000;
+            border-radius: 10px;
+            min-width: 180px;
         }
-        .icon-html {
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23e34c26"><path d="M5 2h14l-1.22 13.39L12 19.35l-5.78-3.95L5 2zm11.45 4.67H8.32l.17 1.83h7.79l-.26 2.82L12 12.63l-4.02-1.31-.09-1.03H6.06l.19 2.45L12 15.35l5.75-2.63.7-7.05z"/></svg>');
+        .menu-item {
+            padding: 10px 16px; font-size: 13.5px; font-weight: 500; color: var(--text-main);
+            cursor: pointer; display: flex; justify-content: space-between; align-items: center;
         }
-        .icon-css {
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23264de4"><path d="M5 2h14l-1.22 13.39L12 19.35l-5.78-3.95L5 2zm11.39 4.67H7.72l.19 2.05h8.29l-.26 2.72L12 12.75l-3.95-1.22-.09-.92H6.03l.18 2.37L12 15.47l5.79-2.72.6-6.08z"/></svg>');
+        .menu-item:hover { background-color: var(--accent); color: white; }
+        .menu-item.disabled { opacity: 0.3; pointer-events: none; }
+
+        /* Vector Icon Engine Injections */
+        .ide-icon {
+            width: 18px; height: 18px; display: inline-block;
+            background-size: contain; background-repeat: no-repeat; background-position: center; flex-shrink: 0;
         }
-        .icon-js {
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23f7df1e"><path d="M3 3h18v18H3V3zm11.72 10.37c-.38-.59-.94-.92-1.63-.92-.66 0-1.07.31-1.07.77 0 .54.43.74 1.18.99 1.47.51 2.53.94 2.53 2.59 0 1.51-1.12 2.51-2.78 2.51-1.61 0-2.53-.74-3.11-1.74l1.3-.82c.36.59.82.94 1.59.94.74 0 1.15-.38 1.15-.87 0-.64-.46-.84-1.35-1.15-1.4-.49-2.35-1.05-2.35-2.48 0-1.4 1.05-2.37 2.65-2.37 1.35 0 2.22.56 2.76 1.48l-1.22.87z"/></svg>');
-        }
-        .icon-unknown {
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2379829a"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>');
-        }
+        .icon-folder { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23f59e0b"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>'); }
+        .icon-html { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23f97316"><path d="M5 2h14l-1.22 13.39L12 19.35l-5.78-3.95L5 2zm11.45 4.67H8.32l.17 1.83h7.79l-.26 2.82L12 12.63l-4.02-1.31-.09-1.03H6.06l.19 2.45L12 15.35l5.75-2.63.7-7.05z"/></svg>'); }
+        .icon-css { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%233b82f6"><path d="M5 2h14l-1.22 13.39L12 19.35l-5.78-3.95L5 2zm11.39 4.67H7.72l.19 2.05h8.29l-.26 2.72L12 12.75l-3.95-1.22-.09-.92H6.03l.18 2.37L12 15.47l5.79-2.72.6-6.08z"/></svg>'); }
+        .icon-js { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23eab308"><path d="M3 3h18v18H3V3zm11.72 10.37c-.38-.59-.94-.92-1.63-.92-.66 0-1.07.31-1.07.77 0 .54.43.74 1.18.99 1.47.51 2.53.94 2.53 2.59 0 1.51-1.12 2.51-2.78 2.51-1.61 0-2.53-.74-3.11-1.74l1.3-.82c.36.59.82.94 1.59.94.74 0 1.15-.38 1.15-.87 0-.64-.46-.84-1.35-1.15-1.4-.49-2.35-1.05-2.35-2.48 0-1.4 1.05-2.37 2.65-2.37 1.35 0 2.22.56 2.76 1.48l-1.22.87z"/></svg>'); }
+        .icon-unknown { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2364748b"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>'); }
 
         @media (max-width: 600px) {
-            aside {
-                position: absolute;
-                left: 0;
-                top: 0;
-                bottom: 0;
-                transform: translateX(-100%);
-            }
-            aside.open {
-                transform: translateX(0);
-                box-shadow: 4px 0 15px rgba(0,0,0,0.5);
-            }
-            .editor-container {
-                flex-direction: column;
-            }
-            #live-server-panel {
-                flex-basis: 40%;
-                border-left: none;
-                border-top: 2px solid var(--border);
-            }
+            .main-editor-split { flex-direction: column; }
+            #live-server-panel { flex-basis: 40%; border-left: none; border-top: 1px solid var(--border); }
         }
     </style>
 </head>
@@ -533,48 +448,66 @@
 
     <header>
         <div class="controls">
-            <button id="btn-toggle-menu" style="display: none;">📁 Menu</button>
-            <button id="btn-new-folder">New Folder</button>
-            <button id="btn-new-file">New File</button>
-            <button id="btn-save">Save</button>
+            <button id="btn-sidebar-toggle">☰ Sidebar</button>
+            <button id="btn-new-folder">＋ Folder</button>
+            <button id="btn-new-file">＋ File</button>
         </div>
-        <div id="file-title">No file open</div>
+        <div id="file-title">Vivid IDE Active</div>
+        <div class="controls">
+            <button id="btn-save" class="btn-accent">💾 Save Workspace</button>
+        </div>
     </header>
 
     <div class="workspace">
         <aside id="sidebar">
             <div class="sidebar-content">
-                <div class="sidebar-header">EXPLORER</div>
+                <div class="sidebar-header">
+                    <span>EXPLORER</span>
+                </div>
                 <div class="tree-root" id="explorer-root"></div>
-            </div>
-            <div class="sidebar-footer">
-                <button class="toggle-theme-btn" id="btn-theme-toggle">Light Mode</button>
             </div>
         </aside>
 
         <div class="editor-container">
-            <main id="editor-main">
-                <textarea id="editor" spellcheck="false"></textarea>
-            </main>
+            <!-- New Modern Tabs Container Row Layout Component -->
+            <div class="tabs-bar" id="tabs-container"></div>
             
-            <div id="live-server-panel">
-                <div class="live-panel-header">
-                    <span>LIVE SERVER PREVIEW</span>
-                    <div class="live-panel-actions">
-                        <button id="btn-fullscreen-live" style="background:#222634; color:white;">Full Screen</button>
-                        <button id="btn-close-live" style="background:#ee4646; color:white;">Close</button>
+            <div class="main-editor-split">
+                <main id="editor-main">
+                    <textarea id="editor" spellcheck="false"></textarea>
+                </main>
+                
+                <div id="live-server-panel">
+                    <div class="live-panel-header">
+                        <span>LIVE RENDER WINDOW</span>
+                        <div style="display:flex; gap:6px;">
+                            <button id="btn-fullscreen-live" style="padding:4px 8px; font-size:11px;">Full Screen</button>
+                            <button id="btn-close-live" style="padding:4px 8px; font-size:11px; background:#ef4444; color:white; border-color:#ef4444;">Close</button>
+                        </div>
                     </div>
+                    <iframe id="live-preview-frame" sandbox="allow-scripts allow-modals"></iframe>
                 </div>
-                <iframe id="live-preview-frame" sandbox="allow-scripts allow-modals"></iframe>
             </div>
         </div>
     </div>
 
-    <!-- Premium Custom Workspace Modal System -->
+    <!-- System Status Bar Layout -->
+    <div class="status-bar">
+        <div class="status-segment">
+            <span id="status-mode">Mode: Plain Text</span>
+            <span id="status-sync" style="color: #22c55e;">🟢 Sync Active</span>
+        </div>
+        <div class="status-segment">
+            <span id="btn-theme-toggle" style="cursor:pointer; text-decoration: underline;">Switch Theme</span>
+            <span>v2.0.0 Stable</span>
+        </div>
+    </div>
+
+    <!-- Custom Modals System -->
     <div id="custom-modal" class="modal-overlay">
         <div class="modal-card">
             <div id="modal-title" class="modal-title">Create New Item</div>
-            <div id="modal-desc" class="modal-description">Please enter a valid label parameters configuration name.</div>
+            <div id="modal-desc" class="modal-description">Please enter a valid configuration parameters namespace.</div>
             <input type="text" id="modal-input" class="modal-input" spellcheck="false" autocomplete="off">
             <div class="modal-actions">
                 <button id="modal-cancel-btn" class="modal-btn modal-btn-cancel">Cancel</button>
@@ -583,22 +516,21 @@
         </div>
     </div>
 
-    <!-- Tree Explorer Context Menu -->
+    <!-- Dynamic Context Menus -->
     <div id="context-menu" class="custom-menu">
         <div class="menu-item" id="ctx-new-file">New File...</div>
         <div class="menu-item" id="ctx-rename">Rename...</div>
-        <div class="menu-item" id="ctx-live" style="color: #4ade80; font-weight: bold; display: none;">Go Live 🟢</div>
-        <div class="menu-item" id="ctx-delete" style="color: #f85149;">Delete</div>
+        <div class="menu-item" id="ctx-live" style="color: #22c55e; font-weight: bold; display: none;">Go Live 🟢</div>
+        <div class="menu-item" id="ctx-delete" style="color: #ef4444;">Delete Asset</div>
     </div>
 
-    <!-- Editor Workspace Context Menu -->
     <div id="editor-context-menu" class="custom-menu">
-        <div class="menu-item" id="edit-ctx-copy">Copy <span class="menu-shortcut">Ctrl+C</span></div>
-        <div class="menu-item" id="edit-ctx-cut">Cut <span class="menu-shortcut">Ctrl+X</span></div>
-        <div class="menu-item" id="edit-ctx-paste">Paste <span class="menu-shortcut">Ctrl+V</span></div>
-        <div class="menu-item" id="edit-ctx-selectall">Select All <span class="menu-shortcut">Ctrl+A</span></div>
-        <div id="editor-ctx-separator" style="border-top: 1px solid var(--border); margin: 4px 0; display: none;"></div>
-        <div class="menu-item" id="edit-ctx-live" style="color: #4ade80; font-weight: bold; display: none;">Go Live 🟢</div>
+        <div class="menu-item" id="edit-ctx-copy">Copy</div>
+        <div class="menu-item" id="edit-ctx-cut">Cut</div>
+        <div class="menu-item" id="edit-ctx-paste">Paste</div>
+        <div class="menu-item" id="edit-ctx-selectall">Select All</div>
+        <div id="editor-ctx-separator" style="border-top:1px solid var(--border); margin:4px 0; display:none;"></div>
+        <div class="menu-item" id="edit-ctx-live" style="color: #22c55e; font-weight: bold; display: none;">Go Live 🟢</div>
     </div>
 
     <script>
@@ -606,13 +538,14 @@
             root: { id: 'root', type: 'folder', name: 'Workspace', children: [] }
         };
 
-        let activeFileId = null;
+        // Open Files Management Matrix Array
+        let openTabs = JSON.parse(localStorage.getItem('v_ide_tabs')) || [];
+        let activeFileId = localStorage.getItem('v_ide_active_tab_id') || null;
+
         let rightClickedItemId = null;
         let currentTheme = localStorage.getItem('v_ide_theme') || 'dark';
         let liveServerActive = false;
         let updateTimeout = null;
-        
-        // Modal Promise Tracking Configuration Objects
         let modalResolveCallback = null;
 
         const explorerRoot = document.getElementById('explorer-root');
@@ -621,14 +554,15 @@
         const editorContextMenu = document.getElementById('editor-context-menu');
         const themeToggleBtn = document.getElementById('btn-theme-toggle');
         const sidebar = document.getElementById('sidebar');
-        const toggleMenuBtn = document.getElementById('btn-toggle-menu');
+        const btnSidebarToggle = document.getElementById('btn-sidebar-toggle');
+        const tabsContainer = document.getElementById('tabs-container');
+        const statusMode = document.getElementById('status-mode');
         
         const liveServerPanel = document.getElementById('live-server-panel');
         const livePreviewFrame = document.getElementById('live-preview-frame');
         const btnCloseLive = document.getElementById('btn-close-live');
         const btnFullscreenLive = document.getElementById('btn-fullscreen-live');
 
-        // Custom Modal UI Elements
         const customModal = document.getElementById('custom-modal');
         const modalTitle = document.getElementById('modal-title');
         const modalDesc = document.getElementById('modal-desc');
@@ -647,67 +581,40 @@
         cmInstance.on("focus", () => { window.scrollTo(0, 0); });
         cmInstance.on("change", () => {
             window.scrollTo(0, 0);
+            if (activeFileId) {
+                const targetNode = findNode(activeFileId);
+                if (targetNode) targetNode.content = cmInstance.getValue();
+            }
             if (liveServerActive) {
                 clearTimeout(updateTimeout);
                 updateTimeout = setTimeout(updateLiveServer, 400);
             }
         });
 
-        function evaluateViewportWidth() {
-            if (window.innerWidth <= 600) {
-                toggleMenuBtn.style.display = 'inline-block';
-            } else {
-                toggleMenuBtn.style.display = 'none';
-                sidebar.classList.remove('open');
-            }
-        }
-        window.addEventListener('resize', evaluateViewportWidth);
-        evaluateViewportWidth();
-
-        toggleMenuBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            sidebar.classList.toggle('open');
-        });
-
-        document.addEventListener('click', (e) => {
-            if (window.innerWidth <= 600 && !sidebar.contains(e.target) && e.target !== toggleMenuBtn) {
-                sidebar.classList.remove('open');
-            }
+        // Collapsible Sidebar Controller Interaction
+        btnSidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed-sidebar');
+            setTimeout(() => cmInstance.refresh(), 310);
         });
 
         function setTheme(theme) {
             currentTheme = theme;
             document.documentElement.setAttribute('data-theme', theme);
             localStorage.setItem('v_ide_theme', theme);
-            
-            if (theme === 'dark') {
-                cmInstance.setOption('theme', 'monokai');
-                themeToggleBtn.textContent = 'Light Mode';
-            } else {
-                cmInstance.setOption('theme', 'neo');
-                themeToggleBtn.textContent = 'Dark Mode';
-            }
+            cmInstance.setOption('theme', theme === 'dark' ? 'monokai' : 'neo');
         }
-        themeToggleBtn.addEventListener('click', () => {
-            setTheme(currentTheme === 'dark' ? 'light' : 'dark');
-        });
+        themeToggleBtn.addEventListener('click', () => setTheme(currentTheme === 'dark' ? 'light' : 'dark'));
         setTheme(currentTheme); 
 
-        // Premium Modal Controller Interface Module
         function openCustomModal(title, description, defaultValue = '', isDanger = false) {
             return new Promise((resolve) => {
                 modalTitle.textContent = title;
                 modalDesc.textContent = description;
                 modalInput.value = defaultValue;
                 modalInput.style.display = description.includes('delete') ? 'none' : 'block';
-                
                 modalConfirmBtn.className = 'modal-btn ' + (isDanger ? 'modal-btn-danger' : 'modal-btn-confirm');
-                
                 customModal.classList.add('active');
-                if (modalInput.style.display !== 'none') {
-                    setTimeout(() => modalInput.focus(), 50);
-                }
-                
+                if (modalInput.style.display !== 'none') setTimeout(() => modalInput.focus(), 50);
                 modalResolveCallback = resolve;
             });
         }
@@ -720,37 +627,66 @@
             }
         }
 
-        modalConfirmBtn.addEventListener('click', () => {
-            if (modalInput.style.display === 'none') {
-                closeCustomModal(true);
-            } else {
-                closeCustomModal(modalInput.value.trim());
-            }
-        });
-
+        modalConfirmBtn.addEventListener('click', () => closeCustomModal(modalInput.style.display === 'none' ? true : modalInput.value.trim()));
         modalCancelBtn.addEventListener('click', () => closeCustomModal(null));
-        
-        modalInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                modalConfirmBtn.click();
-            } else if (e.key === 'Escape') {
-                modalCancelBtn.click();
+        modalInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') modalConfirmBtn.click(); else if(e.key === 'Escape') modalCancelBtn.click(); });
+
+        // Multi-Tab Renderer Workspace Interface Layout 
+        function renderTabs() {
+            tabsContainer.innerHTML = '';
+            openTabs.forEach(id => {
+                const node = findNode(id);
+                if (!node) return;
+
+                const tab = document.createElement('div');
+                tab.className = `tab-item ${id === activeFileId ? 'active' : ''}`;
+                
+                const label = document.createElement('span');
+                label.textContent = node.name;
+                label.addEventListener('click', () => selectFile(id));
+
+                const closeBtn = document.createElement('span');
+                closeBtn.className = 'tab-close';
+                closeBtn.innerHTML = '×';
+                closeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    closeTab(id);
+                });
+
+                tab.appendChild(label);
+                tab.appendChild(closeBtn);
+                tabsContainer.appendChild(tab);
+            });
+            localStorage.setItem('v_ide_tabs', JSON.stringify(openTabs));
+            localStorage.setItem('v_ide_active_tab_id', activeFileId);
+        }
+
+        function closeTab(id) {
+            openTabs = openTabs.filter(t => t !== id);
+            if (activeFileId === id) {
+                activeFileId = openTabs.length ? openTabs[openTabs.length - 1] : null;
             }
-        });
+            if (activeFileId) {
+                selectFile(activeFileId);
+            } else {
+                cmInstance.setValue('');
+                fileTitle.textContent = 'Vivid IDE Active';
+                statusMode.textContent = 'Mode: Plain Text';
+            }
+            renderTabs();
+            renderTree();
+        }
 
         function updateLiveServer() {
             if (!activeFileId || !liveServerActive) return;
-            
             const currentFile = findNode(activeFileId);
             if (!currentFile) return;
 
-            currentFile.content = cmInstance.getValue();
-            let codeContent = currentFile.content;
+            let codeContent = currentFile.content || '';
             let extension = currentFile.name.split('.').pop().toLowerCase();
 
             if (extension === 'html') {
                 let parsedDOM = new DOMParser().parseFromString(codeContent, 'text/html');
-                
                 parsedDOM.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
                     let href = link.getAttribute('href');
                     if (href && !href.startsWith('http')) {
@@ -774,7 +710,6 @@
                         }
                     }
                 });
-
                 codeContent = parsedDOM.documentElement.outerHTML;
             }
 
@@ -803,17 +738,14 @@
             } else {
                 liveServerPanel.style.display = 'none';
                 liveServerPanel.classList.remove('fullscreen-preview');
-                btnFullscreenLive.textContent = 'Full Screen';
                 livePreviewFrame.src = 'about:blank';
             }
             cmInstance.refresh();
         }
 
         btnCloseLive.addEventListener('click', toggleLiveServer);
-
         btnFullscreenLive.addEventListener('click', () => {
             liveServerPanel.classList.toggle('fullscreen-preview');
-            btnFullscreenLive.textContent = liveServerPanel.classList.contains('fullscreen-preview') ? 'Exit Full Screen' : 'Full Screen';
         });
 
         function getIconClass(name, type) {
@@ -826,34 +758,17 @@
         }
 
         const editorElement = document.querySelector('.CodeMirror');
-        
         const triggerEditorMenu = (e, clientX, clientY) => {
-            e.preventDefault();
-            e.stopPropagation();
-            hideContextMenu();
-
-            const hasSelection = cmInstance.somethingSelected();
-            if (hasSelection) {
-                document.getElementById('edit-ctx-copy').classList.remove('disabled');
-                document.getElementById('edit-ctx-cut').classList.remove('disabled');
-            } else {
-                document.getElementById('edit-ctx-copy').classList.add('disabled');
-                document.getElementById('edit-ctx-cut').classList.add('disabled');
-            }
-
+            e.preventDefault(); e.stopPropagation(); hideContextMenu();
             const liveOption = document.getElementById('edit-ctx-live');
-            const separator = document.getElementById('editor-ctx-separator');
             if (activeFileId) {
                 const activeFile = findNode(activeFileId);
                 if (activeFile && activeFile.name.split('.').pop().toLowerCase() === 'html') {
                     liveOption.style.display = 'flex';
-                    separator.style.display = 'block';
                 } else {
                     liveOption.style.display = 'none';
-                    separator.style.display = 'none';
                 }
             }
-
             editorContextMenu.style.left = `${clientX}px`;
             editorContextMenu.style.top = `${clientY}px`;
             editorContextMenu.style.display = 'flex';
@@ -861,53 +776,11 @@
 
         editorElement.addEventListener('contextmenu', (e) => triggerEditorMenu(e, e.clientX, e.clientY));
 
-        let editorPressTimer;
-        editorElement.addEventListener('touchstart', (e) => {
-            if(e.touches.length === 1) {
-                editorPressTimer = setTimeout(() => {
-                    triggerEditorMenu(e, e.touches[0].clientX, e.touches[0].clientY);
-                }, 600);
-            }
-        }, { passive: false });
-        editorElement.addEventListener('touchend', () => clearTimeout(editorPressTimer));
-
-        document.getElementById('edit-ctx-copy').addEventListener('click', () => {
-            document.execCommand('copy');
-            hideContextMenu();
-        });
-
-        document.getElementById('edit-ctx-cut').addEventListener('click', () => {
-            document.execCommand('cut');
-            hideContextMenu();
-        });
-
-        document.getElementById('edit-ctx-paste').addEventListener('click', async () => {
-            try {
-                const text = await navigator.clipboard.readText();
-                cmInstance.replaceSelection(text);
-            } catch (err) {
-                console.log("Clipboard fallback initialization requested.");
-            }
-            hideContextMenu();
-        });
-
-        document.getElementById('edit-ctx-selectall').addEventListener('click', () => {
-            cmInstance.execCommand('selectAll');
-            hideContextMenu();
-        });
-
-        document.getElementById('edit-ctx-live').addEventListener('click', () => {
-            toggleLiveServer();
-            hideContextMenu();
-        });
-
         function saveToStorage() {
             localStorage.setItem('v_ide_fs', JSON.stringify(fsData));
         }
 
-        function generateId() {
-            return 'node_' + Math.random().toString(36).substr(2, 9);
-        }
+        function generateId() { return 'node_' + Math.random().toString(36).substr(2, 9); }
 
         function findNode(id, node = fsData.root) {
             if (node.id === id) return node;
@@ -923,26 +796,18 @@
         function deleteNode(id, node = fsData.root) {
             if (!node.children) return false;
             const index = node.children.findIndex(child => child.id === id);
-            if (index !== -1) {
-                node.children.splice(index, 1);
-                return true;
-            }
-            for (let child of node.children) {
-                if (deleteNode(id, child)) return true;
-            }
+            if (index !== -1) { node.children.splice(index, 1); return true; }
+            for (let child of node.children) { if (deleteNode(id, child)) return true; }
             return false;
         }
 
         function renderTree() {
             explorerRoot.innerHTML = '';
-            fsData.root.children.forEach(child => {
-                explorerRoot.appendChild(createDOMNode(child));
-            });
+            fsData.root.children.forEach(child => explorerRoot.appendChild(createDOMNode(child)));
         }
 
         function createDOMNode(node) {
             const container = document.createElement('div');
-            
             const item = document.createElement('div');
             item.className = `tree-item ${node.type === 'folder' ? 'tree-folder' : 'tree-file'}`;
             if (node.id === activeFileId) item.classList.add('active');
@@ -961,109 +826,74 @@
             if (node.type === 'folder') {
                 const childrenContainer = document.createElement('div');
                 childrenContainer.className = 'folder-children';
-                childrenContainer.dataset.parentId = node.id;
-                
                 if (node.collapsed) childrenContainer.classList.add('collapsed');
-
-                node.children.forEach(child => {
-                    childrenContainer.appendChild(createDOMNode(child));
-                });
+                node.children.forEach(child => childrenContainer.appendChild(createDOMNode(child)));
                 container.appendChild(childrenContainer);
 
-                item.addEventListener('click', (e) => {
-                    if (e.target.closest('.tree-item')) {
-                        node.collapsed = !node.collapsed;
-                        childrenContainer.classList.toggle('collapsed');
-                        saveToStorage();
-                    }
+                item.addEventListener('click', () => {
+                    node.collapsed = !node.collapsed;
+                    childrenContainer.classList.toggle('collapsed');
+                    saveToStorage();
                 });
             } else {
-                item.addEventListener('click', () => {
-                    selectFile(node.id);
-                    if (window.innerWidth <= 600) sidebar.classList.remove('open');
-                });
+                item.addEventListener('click', () => selectFile(node.id));
             }
 
-            const triggerContextMenu = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                hideContextMenu();
-                showContextMenu(e.clientX || (e.touches && e.touches[0].clientX), e.clientY || (e.touches && e.touches[0].clientY), node.id);
-            };
-
-            item.addEventListener('contextmenu', triggerContextMenu);
-            
-            let pressTimer;
-            item.addEventListener('touchstart', (e) => {
-                pressTimer = setTimeout(() => { triggerContextMenu(e); }, 600);
-            }, { passive: true });
-            item.addEventListener('touchend', () => clearTimeout(pressTimer));
+            item.addEventListener('contextmenu', (e) => {
+                e.preventDefault(); e.stopPropagation(); hideContextMenu();
+                showContextMenu(e.clientX, e.clientY, node.id);
+            });
 
             return container;
         }
 
         function selectFile(id) {
-            if (activeFileId) {
-                const currentFile = findNode(activeFileId);
-                if (currentFile) currentFile.content = cmInstance.getValue();
-            }
-            
             activeFileId = id;
-            const file = findNode(id);
+            if (!openTabs.includes(id)) openTabs.push(id);
             
-            let extension = file.name.split('.').pop().toLowerCase();
+            const file = findNode(id);
+            if (!file) return;
+
+            let ext = file.name.split('.').pop().toLowerCase();
             let targetMode = "htmlmixed";
-            if (extension === "js") targetMode = "javascript";
-            if (extension === "css") targetMode = "css";
+            if (ext === "js") targetMode = "javascript";
+            if (ext === "css") targetMode = "css";
             
             cmInstance.setOption("mode", targetMode);
             cmInstance.setValue(file.content || '');
             fileTitle.textContent = file.name;
+            statusMode.textContent = `Mode: ${ext.toUpperCase()}`;
             
             document.querySelectorAll('.tree-item').forEach(el => el.classList.remove('active'));
             const activeEl = document.querySelector(`[data-id="${id}"]`);
             if (activeEl) activeEl.classList.add('active');
+            
             saveToStorage();
-
+            renderTabs();
             if (liveServerActive) updateLiveServer();
         }
 
-        // Asynchronous structural adjustments using custom modal system
         async function createNewItem(type, parentId = 'root') {
-            const name = await openCustomModal(
-                `New ${type === 'folder' ? 'Folder' : 'File'}`, 
-                `Enter a structured target namespace configuration for your workspace ${type}.`,
-                type === 'file' ? 'index.html' : 'components'
-            );
-            
+            const name = await openCustomModal(`New ${type === 'folder' ? 'Folder' : 'File'}`, `Enter name for workspace parameters resource:`, type === 'file' ? 'index.html' : 'components');
             if (!name) return;
 
             const targetParent = findNode(parentId);
-            if (!targetParent || targetParent.type !== 'folder') return;
+            if (!targetParent) return;
 
-            const newItem = {
-                id: generateId(),
-                type: type,
-                name: name,
-                ...(type === 'folder' ? { children: [], collapsed: false } : { content: '' })
-            };
-
+            const newItem = { id: generateId(), type: type, name: name, ...(type === 'folder' ? { children: [], collapsed: false } : { content: '' }) };
             targetParent.children.push(newItem);
             saveToStorage();
             renderTree();
-            
             if (type === 'file') selectFile(newItem.id);
         }
 
         function showContextMenu(x, y, itemId) {
             rightClickedItemId = itemId;
             const targetNode = findNode(itemId);
-            
             const newFileOption = document.getElementById('ctx-new-file');
             const liveOption = document.getElementById('ctx-live');
             
             newFileOption.style.display = targetNode.type === 'file' ? 'none' : 'flex';
-
             if (targetNode.type === 'file' && targetNode.name.split('.').pop().toLowerCase() === 'html') {
                 liveOption.style.display = 'flex';
             } else {
@@ -1084,67 +914,54 @@
         document.getElementById('btn-new-file').addEventListener('click', () => createNewItem('file', 'root'));
         
         document.getElementById('btn-save').addEventListener('click', () => {
-            if (!activeFileId) return;
-            const file = findNode(activeFileId);
-            if (file) {
-                file.content = cmInstance.getValue();
-                saveToStorage();
+            if (activeFileId) {
+                const file = findNode(activeFileId);
+                if (file) { file.content = cmInstance.getValue(); saveToStorage(); }
             }
         });
 
-        document.getElementById('ctx-new-file').addEventListener('click', () => {
-            createNewItem('file', rightClickedItemId);
-            hideContextMenu();
-        });
-
-        document.getElementById('ctx-live').addEventListener('click', () => {
-            selectFile(rightClickedItemId);
-            toggleLiveServer();
-            hideContextMenu();
-        });
+        document.getElementById('ctx-new-file').addEventListener('click', () => { createNewItem('file', rightClickedItemId); hideContextMenu(); });
+        document.getElementById('ctx-live').addEventListener('click', () => { selectFile(rightClickedItemId); toggleLiveServer(); hideContextMenu(); });
 
         document.getElementById('ctx-rename').addEventListener('click', async () => {
             const targetNode = findNode(rightClickedItemId);
             if (targetNode) {
-                const newName = await openCustomModal(
-                    "Rename Asset Element", 
-                    "Update current system path descriptor reference variables name safely.", 
-                    targetNode.name
-                );
+                const newName = await openCustomModal("Rename Asset", "Update system path reference identity parameters name safely.", targetNode.name);
                 if (newName) {
                     targetNode.name = newName;
                     if (activeFileId === rightClickedItemId) fileTitle.textContent = newName;
-                    saveToStorage();
-                    renderTree();
+                    saveToStorage(); renderTree(); renderTabs();
                 }
             }
             hideContextMenu();
         });
 
         document.getElementById('ctx-delete').addEventListener('click', async () => {
-            const isConfirmed = await openCustomModal(
-                "Confirm Deletion Sequence", 
-                "Are you sure you want to delete this resource configuration workspace item permanently?", 
-                '', 
-                true
-            );
-            if (isConfirmed) {
+            if (await openCustomModal("Confirm Deletion", "Are you sure you want to delete this resource configuration workspace item permanently?", '', true)) {
                 deleteNode(rightClickedItemId);
-                if (activeFileId === rightClickedItemId) {
-                    activeFileId = null;
-                    cmInstance.setValue('');
-                    fileTitle.textContent = 'No file open';
-                }
-                saveToStorage();
-                renderTree();
+                closeTab(rightClickedItemId);
             }
+            hideContextMenu();
+        });
+
+        // Edit commands actions mapping
+        document.getElementById('edit-ctx-copy').addEventListener('click', () => { document.execCommand('copy'); hideContextMenu(); });
+        document.getElementById('edit-ctx-cut').addEventListener('click', () => { document.execCommand('cut'); hideContextMenu(); });
+        document.getElementById('edit-ctx-selectall').addEventListener('click', () => { cmInstance.execCommand('selectAll'); hideContextMenu(); });
+        document.getElementById('edit-ctx-live').addEventListener('click', () => { toggleLiveServer(); hideContextMenu(); });
+        document.getElementById('edit-ctx-paste').addEventListener('click', async () => {
+            try { const text = await navigator.clipboard.readText(); cmInstance.replaceSelection(text); } catch (err) {}
             hideContextMenu();
         });
 
         window.addEventListener('click', hideContextMenu);
         window.addEventListener('blur', hideContextMenu);
 
+        // Auto-restore open tab sessions configurations
         renderTree();
+        if (activeFileId && findNode(activeFileId)) {
+            selectFile(activeFileId);
+        }
     </script>
 </body>
 </html>
