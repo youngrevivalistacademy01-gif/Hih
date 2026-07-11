@@ -24,6 +24,7 @@
             --text-muted: #858585;
             --accent: #007acc;
             --border: #333333;
+            --live-panel-bg: #ffffff;
         }
 
         [data-theme="light"] {
@@ -35,9 +36,9 @@
             --text-muted: #6e6e73;
             --accent: #007acc;
             --border: #cccccc;
+            --live-panel-bg: #ffffff;
         }
 
-        /* Fixed viewport constraints to prevent browser window scrolling upon pasting or selection */
         html, body {
             height: 100%;
             width: 100%;
@@ -63,7 +64,6 @@
             flex-direction: column;
         }
 
-        /* Top Action Bar */
         header {
             background-color: var(--bg-sidebar);
             height: 50px;
@@ -107,7 +107,6 @@
             white-space: nowrap;
         }
 
-        /* Workspace Core Layout Grid */
         .workspace {
             display: flex;
             flex-grow: 1;
@@ -116,7 +115,6 @@
             overflow: hidden;
         }
 
-        /* Responsive Sidebar File Explorer */
         aside {
             width: 240px;
             background-color: var(--bg-sidebar);
@@ -194,16 +192,63 @@
             text-align: center;
         }
 
-        /* Editor Wrapper Framework */
-        main {
+        /* Editor and Live Preview Wrapper Layout */
+        .editor-container {
             flex-grow: 1;
             background-color: var(--bg-editor);
             position: relative;
             overflow: hidden;
             height: 100%;
+            display: flex;
+            flex-direction: row;
         }
 
-        /* Explicit heights on layout wrappers to lock CodeMirror's scroll behavior within main container */
+        main {
+            flex-grow: 1;
+            flex-basis: 50%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Live Preview Window Frame Panel */
+        #live-server-panel {
+            flex-basis: 50%;
+            height: 100%;
+            background-color: var(--live-panel-bg);
+            border-left: 2px solid var(--border);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .live-panel-header {
+            background-color: var(--bg-sidebar);
+            height: 35px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 12px;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .live-panel-header button {
+            padding: 2px 6px;
+            font-size: 11px;
+            border-radius: 4px;
+        }
+
+        #live-preview-frame {
+            width: 100%;
+            height: calc(100% - 35px);
+            border: none;
+            background-color: white;
+        }
+
         .CodeMirror {
             height: 100% !important;
             width: 100% !important;
@@ -219,11 +264,12 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        #context-menu {
+        /* Context Menu Overlay adjustments */
+        .custom-menu {
             position: absolute;
             background-color: var(--bg-sidebar);
             border: 1px solid var(--border);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.4);
             display: none;
             flex-direction: column;
             padding: 4px 0;
@@ -237,11 +283,25 @@
             font-size: 14px;
             color: var(--text-main);
             cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .menu-item:hover {
             background-color: var(--accent);
             color: white;
+        }
+        
+        .menu-item.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .menu-shortcut {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-family: monospace;
         }
 
         .icon-folder::before { content: "📁"; }
@@ -259,8 +319,13 @@
                 transform: translateX(0);
                 box-shadow: 4px 0 15px rgba(0,0,0,0.5);
             }
-            .sidebar-toggle-active aside {
-                transform: translateX(0);
+            .editor-container {
+                flex-direction: column;
+            }
+            #live-server-panel {
+                flex-basis: 40%;
+                border-left: none;
+                border-top: 2px solid var(--border);
             }
         }
     </style>
@@ -288,15 +353,37 @@
             </div>
         </aside>
 
-        <main>
-            <textarea id="editor" spellcheck="false"></textarea>
-        </main>
+        <div class="editor-container">
+            <main id="editor-main">
+                <textarea id="editor" spellcheck="false"></textarea>
+            </main>
+            
+            <!-- Live Server Render Panel Layout -->
+            <div id="live-server-panel">
+                <div class="live-panel-header">
+                    <span>LIVE SERVER PREVIEW</span>
+                    <button id="btn-close-live">Close</button>
+                </div>
+                <iframe id="live-preview-frame" sandbox="allow-scripts allow-modals"></iframe>
+            </div>
+        </div>
     </div>
 
-    <div id="context-menu">
+    <!-- Tree Explorer Context Menu -->
+    <div id="context-menu" class="custom-menu">
         <div class="menu-item" id="ctx-new-file">New File...</div>
         <div class="menu-item" id="ctx-rename">Rename...</div>
         <div class="menu-item" id="ctx-delete" style="color: #f85149;">Delete</div>
+    </div>
+
+    <!-- Editor Workspace Dedicated Context Menu -->
+    <div id="editor-context-menu" class="custom-menu">
+        <div class="menu-item" id="edit-ctx-copy">Copy <span class="menu-shortcut">Ctrl+C</span></div>
+        <div class="menu-item" id="edit-ctx-cut">Cut <span class="menu-shortcut">Ctrl+X</span></div>
+        <div class="menu-item" id="edit-ctx-paste">Paste <span class="menu-shortcut">Ctrl+V</span></div>
+        <div class="menu-item" id="edit-ctx-selectall">Select All <span class="menu-shortcut">Ctrl+A</span></div>
+        <hr style="border: 0; border-top: 1px solid var(--border); margin: 4px 0;">
+        <div class="menu-item" id="edit-ctx-live" style="color: #4ade80; font-weight: bold;">Go Live 🟢</div>
     </div>
 
     <script>
@@ -307,13 +394,20 @@
         let activeFileId = null;
         let rightClickedItemId = null;
         let currentTheme = localStorage.getItem('v_ide_theme') || 'dark';
+        let liveServerActive = false;
+        let updateTimeout = null;
 
         const explorerRoot = document.getElementById('explorer-root');
         const fileTitle = document.getElementById('file-title');
         const contextMenu = document.getElementById('context-menu');
+        const editorContextMenu = document.getElementById('editor-context-menu');
         const themeToggleBtn = document.getElementById('btn-theme-toggle');
         const sidebar = document.getElementById('sidebar');
         const toggleMenuBtn = document.getElementById('btn-toggle-menu');
+        
+        const liveServerPanel = document.getElementById('live-server-panel');
+        const livePreviewFrame = document.getElementById('live-preview-frame');
+        const btnCloseLive = document.getElementById('btn-close-live');
 
         const cmInstance = CodeMirror.fromTextArea(document.getElementById('editor'), {
             lineNumbers: true,
@@ -323,12 +417,17 @@
             inputStyle: "contenteditable"
         });
 
-        // Event to counter browser viewport shift during paste sequences on tablet touch layers
         cmInstance.on("focus", () => {
             window.scrollTo(0, 0);
         });
+        
+        // Debounced compilation update pipeline for Live Server rendering loops
         cmInstance.on("change", () => {
             window.scrollTo(0, 0);
+            if (liveServerActive) {
+                clearTimeout(updateTimeout);
+                updateTimeout = setTimeout(updateLiveServer, 400);
+            }
         });
 
         function evaluateViewportWidth() {
@@ -371,6 +470,153 @@
         });
         setTheme(currentTheme); 
 
+        // Live Server Dependency Assembly Pipeline 
+        function updateLiveServer() {
+            if (!activeFileId || !liveServerActive) return;
+            
+            const currentFile = findNode(activeFileId);
+            if (!currentFile) return;
+
+            // Compilation parser mapping internal CSS/JS reference paths to dynamic source outputs
+            let codeContent = cmInstance.getValue();
+            let extension = currentFile.name.split('.').pop().toLowerCase();
+
+            if (extension === 'html') {
+                // Parse and inject project siblings inline to emulate real multi-file resolution
+                let parsedDOM = new DOMParser().parseFromString(codeContent, 'text/html');
+                
+                // CSS Sheet dependency injection
+                parsedDOM.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
+                    let href = link.getAttribute('href');
+                    if (href && !href.startsWith('http')) {
+                        let sibling = findSiblingByName(href);
+                        if (sibling && sibling.type === 'file') {
+                            let styleTag = parsedDOM.createElement('style');
+                            styleTag.textContent = sibling.content || '';
+                            link.replaceWith(styleTag);
+                        }
+                    }
+                });
+
+                // Script block dependency injection
+                parsedDOM.querySelectorAll('script[src]').forEach(script => {
+                    let src = script.getAttribute('src');
+                    if (src && !src.startsWith('http')) {
+                        let sibling = findSiblingByName(src);
+                        if (sibling && sibling.type === 'file') {
+                            let newScript = parsedDOM.createElement('script');
+                            newScript.textContent = sibling.content || '';
+                            script.replaceWith(newScript);
+                        }
+                    }
+                });
+
+                codeContent = parsedDOM.documentElement.outerHTML;
+            } else if (extension === 'css') {
+                codeContent = `<style>${codeContent}</style><div style='padding:10px;font-family:sans-serif;color:#888;'>CSS Source File Live Preview Active</div>`;
+            } else if (extension === 'js') {
+                codeContent = `<script>${codeContent}<\/script><div style='padding:10px;font-family:sans-serif;color:#888;'>JS Source File Execution Output Layer View Active. Open logs to view stack tracking metrics.</div>`;
+            }
+
+            // Safe Blob generation loop to decouple workspace sandbox executions securely
+            const blob = new Blob([codeContent], { type: 'text/html' });
+            const oldUrl = livePreviewFrame.src;
+            livePreviewFrame.src = URL.createObjectURL(blob);
+            if (oldUrl.startsWith('blob:')) URL.revokeObjectURL(oldUrl);
+        }
+
+        function findSiblingByName(name) {
+            if (!fsData.root.children) return null;
+            // Evaluates direct local level workspace files
+            return fsData.root.children.find(child => child.name === name);
+        }
+
+        function toggleLiveServer() {
+            liveServerActive = !liveServerActive;
+            if (liveServerActive) {
+                liveServerPanel.style.display = 'flex';
+                updateLiveServer();
+            } else {
+                liveServerPanel.style.display = 'none';
+                livePreviewFrame.src = 'about:blank';
+            }
+            cmInstance.refresh();
+        }
+
+        btnCloseLive.addEventListener('click', toggleLiveServer);
+
+        // Editor Context Operations Context Menu Interface Handler
+        const editorElement = document.querySelector('.CodeMirror');
+        
+        const triggerEditorMenu = (e, clientX, clientY) => {
+            e.preventDefault();
+            e.stopPropagation();
+            hideContextMenu();
+
+            const hasSelection = cmInstance.somethingSelected();
+            
+            // Toggle element configurations contextually relative to user text selection highlights
+            if (hasSelection) {
+                document.getElementById('edit-ctx-copy').classList.remove('disabled');
+                document.getElementById('edit-ctx-cut').classList.remove('disabled');
+            } else {
+                document.getElementById('edit-ctx-copy').classList.add('disabled');
+                document.getElementById('edit-ctx-cut').classList.add('disabled');
+            }
+
+            editorContextMenu.style.left = `${clientX}px`;
+            editorContextMenu.style.top = `${clientY}px`;
+            editorContextMenu.style.display = 'flex';
+        };
+
+        editorElement.addEventListener('contextmenu', (e) => triggerEditorMenu(e, e.clientX, e.clientY));
+
+        // Touch long press integration directly targeting the CodeMirror tracking window
+        let editorPressTimer;
+        editorElement.addEventListener('touchstart', (e) => {
+            if(e.touches.length === 1) {
+                editorPressTimer = setTimeout(() => {
+                    triggerEditorMenu(e, e.touches[0].clientX, e.touches[0].clientY);
+                }, 600);
+            }
+        }, { passive: false });
+        editorElement.addEventListener('touchend', () => clearTimeout(editorPressTimer));
+        editorElement.addEventListener('touchmove', () => clearTimeout(editorPressTimer));
+
+        // Command Bindings for Workspace Context Options Actions
+        document.getElementById('edit-ctx-copy').addEventListener('click', () => {
+            document.execCommand('copy');
+            hideContextMenu();
+        });
+
+        document.getElementById('edit-ctx-cut').addEventListener('click', () => {
+            document.execCommand('cut');
+            hideContextMenu();
+        });
+
+        document.getElementById('edit-ctx-paste').addEventListener('click', async () => {
+            try {
+                // Clipboard API read access fallback logic for modern secure frameworks
+                const text = await navigator.clipboard.readText();
+                cmInstance.replaceSelection(text);
+            } catch (err) {
+                // Fallback context execution message if system denies manual macro programmatic reads
+                alert("Use your tablet's native paste pop-up button directly over the cursor point if clipboard reading access is restricted.");
+            }
+            hideContextMenu();
+        });
+
+        document.getElementById('edit-ctx-selectall').addEventListener('click', () => {
+            cmInstance.execCommand('selectAll');
+            hideContextMenu();
+        });
+
+        document.getElementById('edit-ctx-live').addEventListener('click', () => {
+            toggleLiveServer();
+            hideContextMenu();
+        });
+
+        // Virtual Filesystem Helper Operations
         function saveToStorage() {
             localStorage.setItem('v_ide_fs', JSON.stringify(fsData));
         }
@@ -457,6 +703,7 @@
             const triggerContextMenu = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                hideContextMenu();
                 showContextMenu(e.clientX || (e.touches && e.touches[0].clientX), e.clientY || (e.touches && e.touches[0].clientY), node.id);
             };
 
@@ -497,6 +744,8 @@
             const activeEl = document.querySelector(`[data-id="${id}"]`);
             if (activeEl) activeEl.classList.add('active');
             saveToStorage();
+
+            if (liveServerActive) updateLiveServer();
         }
 
         function createNewItem(type, parentId = 'root') {
@@ -536,6 +785,7 @@
 
         function hideContextMenu() {
             contextMenu.style.display = 'none';
+            editorContextMenu.style.display = 'none';
         }
 
         document.getElementById('btn-new-folder').addEventListener('click', () => createNewItem('folder', 'root'));
