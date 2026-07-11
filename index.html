@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Web IDE Pro</title>
     <!-- CodeMirror 5 CDN for light/dark syntax highlighting, touch responsiveness, and mobile scrolling -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
@@ -26,7 +26,6 @@
             --border: #333333;
         }
 
-        /* Light Mode Variable Assignments */
         [data-theme="light"] {
             --bg-dark: #e0e0e0;
             --bg-sidebar: #f3f3f3;
@@ -36,6 +35,16 @@
             --text-muted: #6e6e73;
             --accent: #007acc;
             --border: #cccccc;
+        }
+
+        /* Fixed viewport constraints to prevent browser window scrolling upon pasting or selection */
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
         }
 
         * {
@@ -50,10 +59,8 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-dark);
             color: var(--text-main);
-            height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
         }
 
         /* Top Action Bar */
@@ -104,7 +111,7 @@
         .workspace {
             display: flex;
             flex-grow: 1;
-            height: calc(100vh - 50px);
+            height: calc(100% - 50px);
             position: relative;
             overflow: hidden;
         }
@@ -125,7 +132,7 @@
 
         .sidebar-content {
             overflow-y: auto;
-            -webkit-overflow-scrolling: touch; /* Kinetic scrolling smoothness on iOS/Android */
+            -webkit-overflow-scrolling: touch;
             flex-grow: 1;
         }
 
@@ -146,7 +153,7 @@
         .tree-item {
             display: flex;
             align-items: center;
-            padding: 10px 14px; /* Expanded tap targets for tablet sizes */
+            padding: 10px 14px;
             cursor: pointer;
             font-size: 14px;
             color: var(--text-main);
@@ -175,7 +182,6 @@
             display: none;
         }
 
-        /* Footer Element containing Theme Actions inside Sidebar bottom */
         .sidebar-footer {
             padding: 10px;
             border-top: 1px solid var(--border);
@@ -197,15 +203,22 @@
             height: 100%;
         }
 
-        /* Overwrite CodeMirror sizing defaults for screen fluidity */
+        /* Explicit heights on layout wrappers to lock CodeMirror's scroll behavior within main container */
         .CodeMirror {
             height: 100% !important;
             width: 100% !important;
             font-family: 'Fira Code', Consolas, Monaco, monospace;
             font-size: 15px;
+            background-color: var(--bg-editor) !important;
         }
 
-        /* Context Menu Overlay adjustments */
+        .CodeMirror-scroll {
+            height: 100%;
+            overflow-y: auto !important;
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch;
+        }
+
         #context-menu {
             position: absolute;
             background-color: var(--bg-sidebar);
@@ -220,7 +233,7 @@
         }
 
         .menu-item {
-            padding: 12px 16px; /* Optimized padding for touch accuracy */
+            padding: 12px 16px;
             font-size: 14px;
             color: var(--text-main);
             cursor: pointer;
@@ -234,7 +247,6 @@
         .icon-folder::before { content: "📁"; }
         .icon-file::before { content: "📄"; }
 
-        /* Responsiveness Media Queries for Compact Tablet screens */
         @media (max-width: 600px) {
             aside {
                 position: absolute;
@@ -277,7 +289,6 @@
         </aside>
 
         <main>
-            <!-- Integrated native placeholder element converted down by CodeMirror init -->
             <textarea id="editor" spellcheck="false"></textarea>
         </main>
     </div>
@@ -289,7 +300,6 @@
     </div>
 
     <script>
-        // State Engine Data Cache Layer
         let fsData = JSON.parse(localStorage.getItem('v_ide_fs')) || {
             root: { id: 'root', type: 'folder', name: 'Workspace', children: [] }
         };
@@ -305,16 +315,22 @@
         const sidebar = document.getElementById('sidebar');
         const toggleMenuBtn = document.getElementById('btn-toggle-menu');
 
-        // Application Level CodeMirror Driver Setup
         const cmInstance = CodeMirror.fromTextArea(document.getElementById('editor'), {
             lineNumbers: true,
             mode: "htmlmixed",
             theme: currentTheme === 'dark' ? 'monokai' : 'neo',
-            lineWrapping: true, // Guarantees long columns wrap cleanly on tablet viewports
-            inputStyle: "contenteditable" // Drastically enhances mobile virtual keyboard tracking
+            lineWrapping: true, 
+            inputStyle: "contenteditable"
         });
 
-        // Responsive Mobile Breakpoint Handler
+        // Event to counter browser viewport shift during paste sequences on tablet touch layers
+        cmInstance.on("focus", () => {
+            window.scrollTo(0, 0);
+        });
+        cmInstance.on("change", () => {
+            window.scrollTo(0, 0);
+        });
+
         function evaluateViewportWidth() {
             if (window.innerWidth <= 600) {
                 toggleMenuBtn.style.display = 'inline-block';
@@ -337,7 +353,6 @@
             }
         });
 
-        // Theme Core Switch Logic
         function setTheme(theme) {
             currentTheme = theme;
             document.documentElement.setAttribute('data-theme', theme);
@@ -354,9 +369,8 @@
         themeToggleBtn.addEventListener('click', () => {
             setTheme(currentTheme === 'dark' ? 'light' : 'dark');
         });
-        setTheme(currentTheme); // Initial Execution Sync
+        setTheme(currentTheme); 
 
-        // Virtual Filesystem Helper Operations
         function saveToStorage() {
             localStorage.setItem('v_ide_fs', JSON.stringify(fsData));
         }
@@ -389,7 +403,6 @@
             return false;
         }
 
-        // DOM File Tree Render Pipeline
         function renderTree() {
             explorerRoot.innerHTML = '';
             fsData.root.children.forEach(child => {
@@ -441,7 +454,6 @@
                 });
             }
 
-            // Universal Triggering Context Hook
             const triggerContextMenu = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -450,7 +462,6 @@
 
             item.addEventListener('contextmenu', triggerContextMenu);
             
-            // Mobile Long-Press Logic Emulation block
             let pressTimer;
             item.addEventListener('touchstart', (e) => {
                 pressTimer = setTimeout(() => {
@@ -473,7 +484,6 @@
             activeFileId = id;
             const file = findNode(id);
             
-            // Set contextual highlight highlighting based on file extension rules
             let extension = file.name.split('.').pop().toLowerCase();
             let targetMode = "htmlmixed";
             if (extension === "js") targetMode = "javascript";
@@ -512,7 +522,6 @@
             }
         }
 
-        // Context Sub-Menu Actions Mapping
         function showContextMenu(x, y, itemId) {
             rightClickedItemId = itemId;
             const targetNode = findNode(itemId);
