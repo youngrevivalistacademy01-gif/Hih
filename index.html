@@ -568,7 +568,10 @@
             const currentFile = findNode(activeFileId);
             if (!currentFile) return;
 
-            let codeContent = cmInstance.getValue();
+            // Sync active workspace editor buffer directly into tree framework state memory
+            currentFile.content = cmInstance.getValue();
+
+            let codeContent = currentFile.content;
             let extension = currentFile.name.split('.').pop().toLowerCase();
 
             if (extension === 'html') {
@@ -607,9 +610,16 @@
             if (oldUrl.startsWith('blob:')) URL.revokeObjectURL(oldUrl);
         }
 
-        function findSiblingByName(name) {
-            if (!fsData.root.children) return null;
-            return fsData.root.children.find(child => child.name === name);
+        // Fixed recursive lookup tree algorithm supporting global lookups through complex maps
+        function findSiblingByName(name, node = fsData.root) {
+            if (node.type === 'file' && node.name === name) return node;
+            if (node.children) {
+                for (let child of node.children) {
+                    let found = findSiblingByName(name, child);
+                    if (found) return found;
+                }
+            }
+            return null;
         }
 
         function toggleLiveServer() {
@@ -965,4 +975,3 @@
     </script>
 </body>
 </html>
-
