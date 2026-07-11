@@ -28,6 +28,8 @@
             --live-panel-bg: #ffffff;
             --modal-bg: rgba(15, 23, 42, 0.9);
             --tabs-bg: #0b0d13;
+            --theme-badge-bg: #1e293b;
+            --theme-badge-text: #f1f5f9;
         }
 
         [data-theme="light"] {
@@ -43,6 +45,8 @@
             --live-panel-bg: #ffffff;
             --modal-bg: rgba(255, 255, 255, 0.95);
             --tabs-bg: #e2e8f0;
+            --theme-badge-bg: #2563eb;
+            --theme-badge-text: #ffffff;
         }
 
         html, body {
@@ -392,7 +396,7 @@
 
         /* Sleek Workspace Status Bar Configuration */
         .status-bar {
-            height: 25px;
+            height: 30px;
             background-color: var(--bg-sidebar);
             border-top: 1px solid var(--border);
             display: flex;
@@ -406,6 +410,25 @@
             z-index: 100;
         }
         .status-segment { display: flex; align-items: center; gap: 14px; }
+
+        /* High Visibility Theme Badge Switcher Button */
+        .theme-badge {
+            background-color: var(--theme-badge-bg);
+            color: var(--theme-badge-text);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+        }
+        .theme-badge:hover {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
 
         /* Custom Context Menus */
         .custom-menu {
@@ -469,7 +492,6 @@
         </aside>
 
         <div class="editor-container">
-            <!-- New Modern Tabs Container Row Layout Component -->
             <div class="tabs-bar" id="tabs-container"></div>
             
             <div class="main-editor-split">
@@ -485,7 +507,7 @@
                             <button id="btn-close-live" style="padding:4px 8px; font-size:11px; background:#ef4444; color:white; border-color:#ef4444;">Close</button>
                         </div>
                     </div>
-                    <iframe id="live-preview-frame" sandbox="allow-scripts allow-modals"></iframe>
+                    <iframe id="live-preview-frame" sandbox="allow-scripts allow-modals allow-same-origin"></iframe>
                 </div>
             </div>
         </div>
@@ -498,7 +520,7 @@
             <span id="status-sync" style="color: #22c55e;">🟢 Sync Active</span>
         </div>
         <div class="status-segment">
-            <span id="btn-theme-toggle" style="cursor:pointer; text-decoration: underline;">Switch Theme</span>
+            <span id="btn-theme-toggle" class="theme-badge">🌙 Switch Theme</span>
             <span>v2.0.0 Stable</span>
         </div>
     </div>
@@ -507,7 +529,7 @@
     <div id="custom-modal" class="modal-overlay">
         <div class="modal-card">
             <div id="modal-title" class="modal-title">Create New Item</div>
-            <div id="modal-desc" class="modal-description">Please enter a valid configuration parameters namespace.</div>
+            <div id="modal-desc" class="modal-description">Please enter a valid item name.</div>
             <input type="text" id="modal-input" class="modal-input" spellcheck="false" autocomplete="off">
             <div class="modal-actions">
                 <button id="modal-cancel-btn" class="modal-btn modal-btn-cancel">Cancel</button>
@@ -521,7 +543,7 @@
         <div class="menu-item" id="ctx-new-file">New File...</div>
         <div class="menu-item" id="ctx-rename">Rename...</div>
         <div class="menu-item" id="ctx-live" style="color: #22c55e; font-weight: bold; display: none;">Go Live 🟢</div>
-        <div class="menu-item" id="ctx-delete" style="color: #ef4444;">Delete Asset</div>
+        <div class="menu-item" id="ctx-delete" style="color: #ef4444;">Delete</div>
     </div>
 
     <div id="editor-context-menu" class="custom-menu">
@@ -538,7 +560,6 @@
             root: { id: 'root', type: 'folder', name: 'Workspace', children: [] }
         };
 
-        // Open Files Management Matrix Array
         let openTabs = JSON.parse(localStorage.getItem('v_ide_tabs')) || [];
         let activeFileId = localStorage.getItem('v_ide_active_tab_id') || null;
 
@@ -591,7 +612,6 @@
             }
         });
 
-        // Collapsible Sidebar Controller Interaction
         btnSidebarToggle.addEventListener('click', () => {
             sidebar.classList.toggle('collapsed-sidebar');
             setTimeout(() => cmInstance.refresh(), 310);
@@ -602,6 +622,7 @@
             document.documentElement.setAttribute('data-theme', theme);
             localStorage.setItem('v_ide_theme', theme);
             cmInstance.setOption('theme', theme === 'dark' ? 'monokai' : 'neo');
+            themeToggleBtn.innerHTML = theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
         }
         themeToggleBtn.addEventListener('click', () => setTheme(currentTheme === 'dark' ? 'light' : 'dark'));
         setTheme(currentTheme); 
@@ -631,7 +652,6 @@
         modalCancelBtn.addEventListener('click', () => closeCustomModal(null));
         modalInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') modalConfirmBtn.click(); else if(e.key === 'Escape') modalCancelBtn.click(); });
 
-        // Multi-Tab Renderer Workspace Interface Layout 
         function renderTabs() {
             tabsContainer.innerHTML = '';
             openTabs.forEach(id => {
@@ -677,6 +697,16 @@
             renderTree();
         }
 
+        // Live Server Navigation Message Listener Engine
+        window.addEventListener('message', (e) => {
+            if (e.data && e.data.type === 'LIVE_SERVER_NAVIGATE') {
+                const targetNode = findSiblingByName(e.data.fileName);
+                if (targetNode && targetNode.type === 'file') {
+                    selectFile(targetNode.id);
+                }
+            }
+        });
+
         function updateLiveServer() {
             if (!activeFileId || !liveServerActive) return;
             const currentFile = findNode(activeFileId);
@@ -687,6 +717,8 @@
 
             if (extension === 'html') {
                 let parsedDOM = new DOMParser().parseFromString(codeContent, 'text/html');
+                
+                // Bundle inside stylesheets 
                 parsedDOM.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
                     let href = link.getAttribute('href');
                     if (href && !href.startsWith('http')) {
@@ -699,6 +731,7 @@
                     }
                 });
 
+                // Bundle scripts
                 parsedDOM.querySelectorAll('script[src]').forEach(script => {
                     let src = script.getAttribute('src');
                     if (src && !src.startsWith('http')) {
@@ -710,6 +743,24 @@
                         }
                     }
                 });
+
+                // Inject a link/click listener inside the iframe to navigate internally inside the IDE
+                let runtimeInterceptor = parsedDOM.createElement('script');
+                runtimeInterceptor.textContent = `
+                    document.addEventListener('click', (e) => {
+                        let targetElement = e.target.closest('a, button, [href]');
+                        if (!targetElement) return;
+                        
+                        let locationPath = targetElement.getAttribute('href') || targetElement.getAttribute('onclick');
+                        if (locationPath && !locationPath.startsWith('http') && !locationPath.startsWith('#') && !locationPath.startsWith('javascript:')) {
+                            e.preventDefault();
+                            // Clean relative syntax tags out
+                            let targetFileName = locationPath.split('/').pop();
+                            window.parent.postMessage({ type: 'LIVE_SERVER_NAVIGATE', fileName: targetFileName }, '*');
+                        }
+                    });
+                `;
+                parsedDOM.body.appendChild(runtimeInterceptor);
                 codeContent = parsedDOM.documentElement.outerHTML;
             }
 
@@ -874,7 +925,7 @@
         }
 
         async function createNewItem(type, parentId = 'root') {
-            const name = await openCustomModal(`New ${type === 'folder' ? 'Folder' : 'File'}`, `Enter name for workspace parameters resource:`, type === 'file' ? 'index.html' : 'components');
+            const name = await openCustomModal(`New ${type === 'folder' ? 'Folder' : 'File'}`, `Enter a name:`, type === 'file' ? 'index.html' : 'components');
             if (!name) return;
 
             const targetParent = findNode(parentId);
@@ -926,7 +977,7 @@
         document.getElementById('ctx-rename').addEventListener('click', async () => {
             const targetNode = findNode(rightClickedItemId);
             if (targetNode) {
-                const newName = await openCustomModal("Rename Asset", "Update system path reference identity parameters name safely.", targetNode.name);
+                const newName = await openCustomModal("Rename", "Enter a new name for this asset:", targetNode.name);
                 if (newName) {
                     targetNode.name = newName;
                     if (activeFileId === rightClickedItemId) fileTitle.textContent = newName;
@@ -937,14 +988,13 @@
         });
 
         document.getElementById('ctx-delete').addEventListener('click', async () => {
-            if (await openCustomModal("Confirm Deletion", "Are you sure you want to delete this resource configuration workspace item permanently?", '', true)) {
+            if (await openCustomModal("Confirm Delete", "Are you sure you want to permanently delete this item?", '', true)) {
                 deleteNode(rightClickedItemId);
                 closeTab(rightClickedItemId);
             }
             hideContextMenu();
         });
 
-        // Edit commands actions mapping
         document.getElementById('edit-ctx-copy').addEventListener('click', () => { document.execCommand('copy'); hideContextMenu(); });
         document.getElementById('edit-ctx-cut').addEventListener('click', () => { document.execCommand('cut'); hideContextMenu(); });
         document.getElementById('edit-ctx-selectall').addEventListener('click', () => { cmInstance.execCommand('selectAll'); hideContextMenu(); });
@@ -957,7 +1007,6 @@
         window.addEventListener('click', hideContextMenu);
         window.addEventListener('blur', hideContextMenu);
 
-        // Auto-restore open tab sessions configurations
         renderTree();
         if (activeFileId && findNode(activeFileId)) {
             selectFile(activeFileId);
