@@ -30,6 +30,7 @@
             --tabs-bg: #0b0d13;
             --theme-badge-bg: #1e293b;
             --theme-badge-text: #f1f5f9;
+            --split-border: #2563eb;
         }
 
         [data-theme="light"] {
@@ -47,6 +48,7 @@
             --tabs-bg: #e2e8f0;
             --theme-badge-bg: #2563eb;
             --theme-badge-text: #ffffff;
+            --split-border: #3b82f6;
         }
 
         html, body {
@@ -140,7 +142,7 @@
         .workspace {
             display: flex;
             flex-grow: 1;
-            height: calc(100% - 80px); /* Accounted for Header + StatusBar */
+            height: calc(100% - 85px); /* Adjusted slightly for added panels stability */
             position: relative;
             overflow: hidden;
         }
@@ -292,6 +294,75 @@
             position: relative;
         }
 
+        /* Split Window Feature Styles */
+        .split-workspace-zone {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        .split-editor-pane {
+            flex: 1;
+            height: 100%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .split-editor-pane.active-pane {
+            border: 1px solid var(--split-border);
+        }
+
+        .pane-header-title {
+            background: var(--tabs-bg);
+            padding: 4px 12px;
+            font-size: 11px;
+            color: var(--text-muted);
+            font-family: monospace;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Asset Media Previewer styles */
+        .asset-preview-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #0b0e14;
+            color: #94a3b8;
+            padding: 20px;
+        }
+
+        .asset-preview-card {
+            background: var(--bg-sidebar);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            max-width: 80%;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .asset-preview-card img {
+            max-width: 100%;
+            max-height: 250px;
+            object-fit: contain;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            background: repeating-conic-gradient(#1e293b 0% 25%, #0f172a 25% 50%) 0 0/20px 20px;
+        }
+
+        .asset-info-grid {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-family: monospace;
+        }
+
         /* Live Preview Panel Frame Layout */
         #live-server-panel {
             flex-basis: 50%;
@@ -338,6 +409,67 @@
             font-size: 15px;
             background-color: var(--bg-editor) !important;
         }
+
+        /* Command Palette UI Overlay */
+        .cmd-palette-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(4, 6, 10, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 6000;
+            display: none;
+            justify-content: center;
+            padding-top: 50px;
+        }
+
+        .cmd-palette-box {
+            background: var(--modal-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 550px;
+            height: fit-content;
+            max-height: 330px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .cmd-palette-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid var(--border);
+            padding: 14px 18px;
+            color: var(--text-main);
+            font-size: 15px;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .cmd-palette-results {
+            overflow-y: auto;
+            max-height: 260px;
+            padding: 6px;
+        }
+
+        .cmd-item {
+            padding: 10px 14px;
+            font-size: 13.5px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-muted);
+        }
+
+        .cmd-item strong { color: var(--text-main); font-weight: 500; }
+        .cmd-item:hover, .cmd-item.selected {
+            background: var(--accent);
+            color: #ffffff;
+        }
+        .cmd-item:hover strong, .cmd-item.selected strong { color: #ffffff; }
 
         /* High-End Glassmorphism Modal System */
         .modal-overlay {
@@ -459,6 +591,9 @@
         .icon-html { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23f97316"><path d="M5 2h14l-1.22 13.39L12 19.35l-5.78-3.95L5 2zm11.45 4.67H8.32l.17 1.83h7.79l-.26 2.82L12 12.63l-4.02-1.31-.09-1.03H6.06l.19 2.45L12 15.35l5.75-2.63.7-7.05z"/></svg>'); }
         .icon-css { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%233b82f6"><path d="M5 2h14l-1.22 13.39L12 19.35l-5.78-3.95L5 2zm11.39 4.67H7.72l.19 2.05h8.29l-.26 2.72L12 12.75l-3.95-1.22-.09-.92H6.03l.18 2.37L12 15.47l5.79-2.72.6-6.08z"/></svg>'); }
         .icon-js { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23eab308"><path d="M3 3h18v18H3V3zm11.72 10.37c-.38-.59-.94-.92-1.63-.92-.66 0-1.07.31-1.07.77 0 .54.43.74 1.18.99 1.47.51 2.53.94 2.53 2.59 0 1.51-1.12 2.51-2.78 2.51-1.61 0-2.53-.74-3.11-1.74l1.3-.82c.36.59.82.94 1.59.94.74 0 1.15-.38 1.15-.87 0-.64-.46-.84-1.35-1.15-1.4-.49-2.35-1.05-2.35-2.48 0-1.4 1.05-2.37 2.65-2.37 1.35 0 2.22.56 2.76 1.48l-1.22.87z"/></svg>'); }
+        .icon-json { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2306b6d4"><path d="M5 3h14c1.1 0 2 .9 2 2v14c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V5c0-1.1.9-2 2-2zm4 4c-.55 0-1 .45-1 1v2c0 .55-.45 1-1 1s-1 .45-1 1v1c0 .55.45 1 1 1s1 .45 1 1v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55.45-1 1-1s1-.45 1-1v-1c0-.55-.45-1-1-1s-1-.45-1-1V8c0-.55-.45-1-1-1zm6 0c.55 0 1 .45 1 1v2c0 .55.45 1 1 1s1 .45 1 1v1c0 .55-.45 1-1 1s-1 .45-1 1v2c0 .55-.45 1-1 1s-1-.45-1-1v-2c0-.55-.45-1-1-1s-1-.45-1-1v-1c0-.55.45-1 1-1s1-.45 1-1V8c0-.55-.45-1 1-1z"/></svg>'); }
+        .icon-md { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23a855f7"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14h-2V9h2v8zm5 0h-2v-4l-1.5 2.5L14 13v4h-2V9h2l1.5 2.5L18 9h2v8z"/></svg>'); }
+        .icon-image { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2310b981"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>'); }
         .icon-unknown { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2364748b"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>'); }
 
         @media (max-width: 600px) {
@@ -474,6 +609,7 @@
             <button id="btn-sidebar-toggle">☰ Sidebar</button>
             <button id="btn-new-folder">＋ Folder</button>
             <button id="btn-new-file">＋ File</button>
+            <button id="btn-split-toggle" style="background: var(--bg-hover); border-color: var(--border);">🥞 Split View</button>
         </div>
         <div id="file-title">Vivid IDE Active</div>
         <div class="controls">
@@ -496,7 +632,18 @@
             
             <div class="main-editor-split">
                 <main id="editor-main">
-                    <textarea id="editor" spellcheck="false"></textarea>
+                    <div class="split-workspace-zone" id="split-workspace-zone">
+                        <!-- Primary Pane -->
+                        <div class="split-editor-pane active-pane" id="pane-primary">
+                            <div class="pane-header-title" id="pane-title-primary"><span>Primary Window</span></div>
+                            <textarea id="editor" spellcheck="false"></textarea>
+                        </div>
+                        <!-- Secondary Pane (Hidden by Default) -->
+                        <div class="split-editor-pane" id="pane-secondary" style="display: none; border-left: 1px solid var(--border);">
+                            <div class="pane-header-title"><span>Split Pane view</span></div>
+                            <textarea id="editor-secondary" spellcheck="false"></textarea>
+                        </div>
+                    </div>
                 </main>
                 
                 <div id="live-server-panel">
@@ -522,6 +669,14 @@
         <div class="status-segment">
             <span id="btn-theme-toggle" class="theme-badge">🌙 Switch Theme</span>
             <span>v2.0.0 Stable</span>
+        </div>
+    </div>
+
+    <!-- Quick Command Palette UI Modal Overlay -->
+    <div id="cmd-palette" class="cmd-palette-overlay">
+        <div class="cmd-palette-box">
+            <input type="text" id="cmd-input" class="cmd-palette-input" placeholder="Type an IDE action shortcut... (e.g. Go Live)" autocomplete="off" spellcheck="false">
+            <div id="cmd-results" class="cmd-palette-results"></div>
         </div>
     </div>
 
@@ -568,6 +723,10 @@
         let liveServerActive = false;
         let updateTimeout = null;
         let modalResolveCallback = null;
+        
+        // Split Window State Variables
+        let splitViewMode = false;
+        let secondaryFileId = null;
 
         const explorerRoot = document.getElementById('explorer-root');
         const fileTitle = document.getElementById('file-title');
@@ -591,11 +750,27 @@
         const modalCancelBtn = document.getElementById('modal-cancel-btn');
         const modalConfirmBtn = document.getElementById('modal-confirm-btn');
 
+        // Command Palette Elements
+        const cmdPalette = document.getElementById('cmd-palette');
+        const cmdInput = document.getElementById('cmd-input');
+        const cmdResults = document.getElementById('cmd-results');
+        const btnSplitToggle = document.getElementById('btn-split-toggle');
+
+        // Main Primary Editor Setup
         const cmInstance = CodeMirror.fromTextArea(document.getElementById('editor'), {
             lineNumbers: true,
             mode: "htmlmixed",
             theme: currentTheme === 'dark' ? 'monokai' : 'neo',
             lineWrapping: true, 
+            inputStyle: "contenteditable"
+        });
+
+        // Split Editor Pane Setup
+        const cmSecondary = CodeMirror.fromTextArea(document.getElementById('editor-secondary'), {
+            lineNumbers: true,
+            mode: "htmlmixed",
+            theme: currentTheme === 'dark' ? 'monokai' : 'neo',
+            lineWrapping: true,
             inputStyle: "contenteditable"
         });
 
@@ -612,9 +787,23 @@
             }
         });
 
+        cmSecondary.on("change", () => {
+            if (secondaryFileId) {
+                const targetNode = findNode(secondaryFileId);
+                if (targetNode) targetNode.content = cmSecondary.getValue();
+            }
+            if (liveServerActive) {
+                clearTimeout(updateTimeout);
+                updateTimeout = setTimeout(updateLiveServer, 400);
+            }
+        });
+
         btnSidebarToggle.addEventListener('click', () => {
             sidebar.classList.toggle('collapsed-sidebar');
-            setTimeout(() => cmInstance.refresh(), 310);
+            setTimeout(() => {
+                cmInstance.refresh();
+                cmSecondary.refresh();
+            }, 310);
         });
 
         function setTheme(theme) {
@@ -622,6 +811,7 @@
             document.documentElement.setAttribute('data-theme', theme);
             localStorage.setItem('v_ide_theme', theme);
             cmInstance.setOption('theme', theme === 'dark' ? 'monokai' : 'neo');
+            cmSecondary.setOption('theme', theme === 'dark' ? 'monokai' : 'neo');
             themeToggleBtn.innerHTML = theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
         }
         themeToggleBtn.addEventListener('click', () => setTheme(currentTheme === 'dark' ? 'light' : 'dark'));
@@ -685,6 +875,11 @@
             openTabs = openTabs.filter(t => t !== id);
             if (activeFileId === id) {
                 activeFileId = openTabs.length ? openTabs[openTabs.length - 1] : null;
+            }
+            if (secondaryFileId === id) {
+                secondaryFileId = null;
+                document.getElementById('pane-secondary').style.display = 'none';
+                splitViewMode = false;
             }
             if (activeFileId) {
                 selectFile(activeFileId);
@@ -792,6 +987,7 @@
                 livePreviewFrame.src = 'about:blank';
             }
             cmInstance.refresh();
+            cmSecondary.refresh();
         }
 
         btnCloseLive.addEventListener('click', toggleLiveServer);
@@ -799,12 +995,16 @@
             liveServerPanel.classList.toggle('fullscreen-preview');
         });
 
+        // Enhanced Vector Icon Mapping Extension Engine
         function getIconClass(name, type) {
             if (type === 'folder') return 'icon-folder';
             let ext = name.split('.').pop().toLowerCase();
             if (ext === 'html' || ext === 'htm') return 'icon-html';
             if (ext === 'css') return 'icon-css';
             if (ext === 'js') return 'icon-js';
+            if (ext === 'json') return 'icon-json';
+            if (ext === 'md') return 'icon-md';
+            if (['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp'].includes(ext)) return 'icon-image';
             return 'icon-unknown';
         }
 
@@ -898,31 +1098,97 @@
             return container;
         }
 
-        function selectFile(id) {
-            activeFileId = id;
-            if (!openTabs.includes(id)) openTabs.push(id);
-            
+        // Dual File Split Viewer + Interactive Asset Media Preview Logic
+        function selectFile(id, isSecondary = false) {
             const file = findNode(id);
             if (!file) return;
 
+            if (!isSecondary) {
+                activeFileId = id;
+                if (!openTabs.includes(id)) openTabs.push(id);
+            } else {
+                secondaryFileId = id;
+            }
+            
             let ext = file.name.split('.').pop().toLowerCase();
             let targetMode = "htmlmixed";
             if (ext === "js") targetMode = "javascript";
             if (ext === "css") targetMode = "css";
-            
-            cmInstance.setOption("mode", targetMode);
-            cmInstance.setValue(file.content || '');
-            fileTitle.textContent = file.name;
-            statusMode.textContent = `Mode: ${ext.toUpperCase()}`;
-            
-            document.querySelectorAll('.tree-item').forEach(el => el.classList.remove('active'));
-            const activeEl = document.querySelector(`[data-id="${id}"]`);
-            if (activeEl) activeEl.classList.add('active');
-            
-            saveToStorage();
-            renderTabs();
-            if (liveServerActive) updateLiveServer();
+            if (ext === "json") targetMode = "javascript";
+
+            const primaryPane = document.getElementById('pane-primary');
+            const secondaryPane = document.getElementById('pane-secondary');
+            const targetPane = isSecondary ? secondaryPane : primaryPane;
+            const targetInstance = isSecondary ? cmSecondary : cmInstance;
+
+            // Media Ext Asset Detector Rule Interceptor
+            if (['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp'].includes(ext)) {
+                // Remove CodeMirror display if present
+                targetPane.querySelector('.CodeMirror').style.visibility = 'hidden';
+                let oldPreview = targetPane.querySelector('.asset-preview-container');
+                if (oldPreview) oldPreview.remove();
+
+                let mockSource = ext === 'svg' 
+                    ? `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="%233b82f6"><circle cx="12" cy="12" r="10"/></svg>`
+                    : `https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=60`;
+
+                let previewElement = document.createElement('div');
+                previewElement.className = 'asset-preview-container';
+                previewElement.innerHTML = `
+                    <div class="asset-preview-card">
+                        <img src="${mockSource}" alt="Asset File">
+                        <div class="asset-info-grid">
+                            <p><strong>Name:</strong> ${file.name}</p>
+                            <p><strong>Dimensions:</strong> 512 × 512 px</p>
+                            <p><strong>Type:</strong> Image/${ext.toUpperCase()}</p>
+                        </div>
+                    </div>
+                `;
+                targetPane.appendChild(previewElement);
+            } else {
+                // Restore standard script text viewports
+                targetPane.querySelector('.CodeMirror').style.visibility = 'visible';
+                let previewZone = targetPane.querySelector('.asset-preview-container');
+                if (previewZone) previewZone.remove();
+
+                targetInstance.setOption("mode", targetMode);
+                targetInstance.setValue(file.content || '');
+            }
+
+            if (!isSecondary) {
+                fileTitle.textContent = file.name;
+                statusMode.textContent = `Mode: ${ext.toUpperCase()}`;
+                document.querySelectorAll('.tree-item').forEach(el => el.classList.remove('active'));
+                const activeEl = document.querySelector(`[data-id="${id}"]`);
+                if (activeEl) activeEl.classList.add('active');
+                saveToStorage();
+                renderTabs();
+                if (liveServerActive) updateLiveServer();
+            }
         }
+
+        // Split Layout System Toggles
+        btnSplitToggle.addEventListener('click', () => {
+            splitViewMode = !splitViewMode;
+            const secondaryPane = document.getElementById('pane-secondary');
+            if (splitViewMode) {
+                secondaryPane.style.display = 'flex';
+                // Automatically display next available file tab or current
+                if (openTabs.length > 1) {
+                    let nextIndex = openTabs.indexOf(activeFileId) === 0 ? 1 : 0;
+                    selectFile(openTabs[nextIndex], true);
+                } else if (activeFileId) {
+                    selectFile(activeFileId, true);
+                }
+            } else {
+                secondaryPane.style.display = 'none';
+                secondaryFileId = null;
+            }
+            setTimeout(() => {
+                cmInstance.refresh();
+                cmSecondary.refresh();
+            }, 50);
+        });
 
         async function createNewItem(type, parentId = 'root') {
             const name = await openCustomModal(`New ${type === 'folder' ? 'Folder' : 'File'}`, `Enter a name:`, type === 'file' ? 'index.html' : 'components');
@@ -969,6 +1235,10 @@
                 const file = findNode(activeFileId);
                 if (file) { file.content = cmInstance.getValue(); saveToStorage(); }
             }
+            if (secondaryFileId) {
+                const fileSec = findNode(secondaryFileId);
+                if (fileSec) { fileSec.content = cmSecondary.getValue(); saveToStorage(); }
+            }
         });
 
         document.getElementById('ctx-new-file').addEventListener('click', () => { createNewItem('file', rightClickedItemId); hideContextMenu(); });
@@ -1002,6 +1272,88 @@
         document.getElementById('edit-ctx-paste').addEventListener('click', async () => {
             try { const text = await navigator.clipboard.readText(); cmInstance.replaceSelection(text); } catch (err) {}
             hideContextMenu();
+        });
+
+        // Command Palette Action Shortcuts Engine Array
+        const commandsList = [
+            { name: "Switch Theme", desc: "Toggle between workspace Dark/Light profiles", action: () => themeToggleBtn.click() },
+            { name: "Go Live", desc: "Toggle interactive dual-render preview window frame", action: () => toggleLiveServer() },
+            { name: "New File", desc: "Instantiate a new structural text/code file asset", action: () => createNewItem('file', 'root') },
+            { name: "New Folder", desc: "Generate a clean dynamic directory branch structural point", action: () => createNewItem('folder', 'root') },
+            { name: "Clear Editor", desc: "Flushes text content from active open editor", action: () => cmInstance.setValue('') }
+        ];
+
+        let selectedCmdIndex = 0;
+
+        function showCommandPalette() {
+            cmdPalette.style.display = 'flex';
+            cmdInput.value = '';
+            cmdInput.focus();
+            renderCommandItems(commandsList);
+        }
+
+        function hideCommandPalette() {
+            cmdPalette.style.display = 'none';
+        }
+
+        function renderCommandItems(filteredList) {
+            cmdResults.innerHTML = '';
+            if (filteredList.length === 0) {
+                cmdResults.innerHTML = `<div style="padding:12px; font-size:13px; color:var(--text-muted);">No actions found matching search term.</div>`;
+                return;
+            }
+            filteredList.forEach((cmd, index) => {
+                const row = document.createElement('div');
+                row.className = `cmd-item ${index === selectedCmdIndex ? 'selected' : ''}`;
+                row.innerHTML = `<strong>&gt; ${cmd.name}</strong> <span>${cmd.desc}</span>`;
+                row.addEventListener('click', () => {
+                    cmd.action();
+                    hideCommandPalette();
+                });
+                cmdResults.appendChild(row);
+            });
+        }
+
+        cmdInput.addEventListener('input', () => {
+            let term = cmdInput.value.toLowerCase();
+            let matches = commandsList.filter(c => c.name.toLowerCase().includes(term) || c.desc.toLowerCase().includes(term));
+            selectedCmdIndex = 0;
+            renderCommandItems(matches);
+        });
+
+        cmdInput.addEventListener('keydown', (e) => {
+            let items = cmdResults.querySelectorAll('.cmd-item');
+            let term = cmdInput.value.toLowerCase();
+            let matches = commandsList.filter(c => c.name.toLowerCase().includes(term) || c.desc.toLowerCase().includes(term));
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectedCmdIndex = (selectedCmdIndex + 1) % matches.length;
+                renderCommandItems(matches);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedCmdIndex = (selectedCmdIndex - 1 + matches.length) % matches.length;
+                renderCommandItems(matches);
+            } else if (e.key === 'Enter') {
+                if (matches[selectedCmdIndex]) {
+                    matches[selectedCmdIndex].action();
+                    hideCommandPalette();
+                }
+            } else if (e.key === 'Escape') {
+                hideCommandPalette();
+            }
+        });
+
+        // Window Global Short-circuit Handler Keybindings Engine
+        window.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'p') {
+                e.preventDefault();
+                if (cmdPalette.style.display === 'flex') hideCommandPalette(); else showCommandPalette();
+            }
+        });
+
+        cmdPalette.addEventListener('click', (e) => {
+            if (e.target === cmdPalette) hideCommandPalette();
         });
 
         window.addEventListener('click', hideContextMenu);
