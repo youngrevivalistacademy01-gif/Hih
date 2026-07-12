@@ -60,6 +60,7 @@ const liveServerPanel = document.getElementById('live-server-panel');
 const livePreviewFrame = document.getElementById('live-preview-frame');
 const btnCloseLive = document.getElementById('btn-close-live');
 const btnFullscreenLive = document.getElementById('btn-fullscreen-live');
+const btnGoLive = document.getElementById('btn-go-live');
 
 const customModal = document.getElementById('custom-modal');
 const modalTitle = document.getElementById('modal-title');
@@ -369,15 +370,46 @@ window.addEventListener('message', (e) => {
     }
 });
 
+// FIX: this used to return silently (blank white iframe, no explanation)
+// whenever there was no active file, the active file wasn't HTML, or the
+// active file's content was empty. All three are common — e.g. toggling
+// Go Live from the command palette with a .css file open. Now every one
+// of those states renders an explicit message instead of nothing.
+function renderInfoScreen(message) {
+    livePreviewFrame.srcdoc = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
+        html,body{height:100%;margin:0;display:flex;align-items:center;justify-content:center;
+        font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:#0b0e14;color:#94a3b8;text-align:center;}
+        div{max-width:320px;padding:24px;font-size:14px;line-height:1.5;}
+        code{background:#1e293b;color:#f1f5f9;padding:2px 6px;border-radius:4px;}
+        </style></head><body><div>${message}</div></body></html>`;
+}
+
 function updateLiveServer() {
-    if (!activeFileId || !liveServerActive) return;
+    if (!liveServerActive) return;
+
+    if (!activeFileId) {
+        renderInfoScreen('No file is open. Select or create a file to preview it here.');
+        return;
+    }
     const currentFile = findNode(activeFileId);
-    if (!currentFile) return;
+    if (!currentFile) {
+        renderInfoScreen('The previously active file no longer exists.');
+        return;
+    }
+
+    const extension = (currentFile.name.split('.').pop() || '').toLowerCase();
+    if (extension !== 'html' && extension !== 'htm') {
+        renderInfoScreen(`<code>${currentFile.name}</code> isn't an HTML file, so there's nothing to render directly. Open the HTML file that links to it — Go Live previews HTML entry points, and pulls in its linked CSS/JS automatically.`);
+        return;
+    }
 
     let codeContent = currentFile.content || '';
-    const extension = (currentFile.name.split('.').pop() || '').toLowerCase();
+    if (!codeContent.trim()) {
+        renderInfoScreen(`<code>${currentFile.name}</code> is empty. Start typing to see it rendered here.`);
+        return;
+    }
 
-    if (extension === 'html' || extension === 'htm') {
+    try {
         const parsedDOM = new DOMParser().parseFromString(codeContent, 'text/html');
 
         parsedDOM.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
@@ -418,13 +450,17 @@ function updateLiveServer() {
         `;
         parsedDOM.body.appendChild(runtimeInterceptor);
         codeContent = '<!DOCTYPE html>\n' + parsedDOM.documentElement.outerHTML;
+        livePreviewFrame.srcdoc = codeContent;
+    } catch (err) {
+        console.error('Live preview render failed:', err);
+        renderInfoScreen(`Preview failed to render: ${String(err.message || err)}`);
     }
-
-    livePreviewFrame.srcdoc = codeContent;
 }
 
 function toggleLiveServer() {
     liveServerActive = !liveServerActive;
+    btnGoLive.classList.toggle('btn-accent', !liveServerActive);
+    btnGoLive.textContent = liveServerActive ? '⏹ Stop Live' : '▶ Go Live';
     if (liveServerActive) {
         liveServerPanel.style.display = 'flex';
         updateLiveServer();
@@ -438,6 +474,7 @@ function toggleLiveServer() {
 }
 
 btnCloseLive.addEventListener('click', toggleLiveServer);
+btnGoLive.addEventListener('click', toggleLiveServer);
 btnFullscreenLive.addEventListener('click', () => liveServerPanel.classList.toggle('fullscreen-preview'));
 
 /* ---------------------------------------------------------------
