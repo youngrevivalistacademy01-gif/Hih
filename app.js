@@ -37,6 +37,7 @@ let currentTheme = localStorage.getItem('v_ide_theme') || 'dark';
 
 let rightClickedItemId = null;
 let liveServerActive = false;
+let liveTargetFileId = null;
 let updateTimeout = null;
 let modalResolveCallback = null;
 
@@ -365,8 +366,15 @@ function queueLiveUpdate() {
 
 window.addEventListener('message', (e) => {
     if (e.data && e.data.type === 'LIVE_SERVER_NAVIGATE') {
-        const targetNode = resolveRelativePath(activeFileId, e.data.fileName);
-        if (targetNode && targetNode.type === 'file') selectFile(targetNode.id);
+        const targetNode = resolveRelativePath(liveTargetFileId, e.data.fileName);
+        if (targetNode && targetNode.type === 'file') {
+            const ext = (targetNode.name.split('.').pop() || '').toLowerCase();
+            if (ext === 'html' || ext === 'htm') {
+                liveTargetFileId = targetNode.id;
+                updateLivePanelLabel();
+            }
+            selectFile(targetNode.id);
+        }
     }
 });
 
@@ -387,19 +395,22 @@ function renderInfoScreen(message) {
 function updateLiveServer() {
     if (!liveServerActive) return;
 
-    if (!activeFileId) {
-        renderInfoScreen('No file is open. Select or create a file to preview it here.');
+    if (!liveTargetFileId) {
+        renderInfoScreen('No HTML file is set as the live target. Right-click (or long-press) an HTML file and choose <code>Go Live</code>.');
         return;
     }
-    const currentFile = findNode(activeFileId);
+    const currentFile = findNode(liveTargetFileId);
     if (!currentFile) {
-        renderInfoScreen('The previously active file no longer exists.');
+        renderInfoScreen('The HTML file being previewed no longer exists. Pick another file and choose <code>Go Live</code> again.');
+        liveTargetFileId = null;
         return;
     }
 
     const extension = (currentFile.name.split('.').pop() || '').toLowerCase();
     if (extension !== 'html' && extension !== 'htm') {
-        renderInfoScreen(`<code>${currentFile.name}</code> isn't an HTML file, so there's nothing to render directly. Open the HTML file that links to it — Go Live previews HTML entry points, and pulls in its linked CSS/JS automatically.`);
+        // Shouldn't normally happen since only html files can become the target,
+        // but guards against stale state after a rename.
+        renderInfoScreen(`<code>${currentFile.name}</code> is no longer an HTML file. Choose <code>Go Live</code> on an HTML file again.`);
         return;
     }
 
@@ -415,7 +426,7 @@ function updateLiveServer() {
         parsedDOM.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
             const href = link.getAttribute('href');
             if (href && !/^https?:\/\//.test(href)) {
-                const sibling = resolveRelativePath(activeFileId, href);
+                const sibling = resolveRelativePath(liveTargetFileId, href);
                 if (sibling) {
                     const styleTag = parsedDOM.createElement('style');
                     styleTag.textContent = sibling.content || '';
@@ -427,7 +438,7 @@ function updateLiveServer() {
         parsedDOM.querySelectorAll('script[src]').forEach(script => {
             const src = script.getAttribute('src');
             if (src && !/^https?:\/\//.test(src)) {
-                const sibling = resolveRelativePath(activeFileId, src);
+                const sibling = resolveRelativePath(liveTargetFileId, src);
                 if (sibling) {
                     const newScript = parsedDOM.createElement('script');
                     newScript.textContent = sibling.content || '';
@@ -457,11 +468,62 @@ function updateLiveServer() {
     }
 }
 
+function updateLivePanelLabel() {
+    const label = document.getElementById('live-panel-filename');
+    if (!label) return;
+    const file = liveTargetFileId ? findNode(liveTargetFileId) : null;
+    label.textContent = file ? `— ${file.name}` : '';
+}
+
+// Picks a sensible default HTML file to preview when Go Live is pressed
+// without having explicitly targeted one via a file's context menu.
+function pickDefaultLiveTarget() {
+    if (activeFileId) {
+        const active = findNode(activeFileId);
+        const ext = active ? (active.name.split('.').pop() || '').toLowerCase() : '';
+        if (ext === 'html' || ext === 'htm') return active.id;
+    }
+    for (const id of openTabs) {
+        const node = findNode(id);
+        const ext = node ? (node.name.split('.').pop() || '').toLowerCase() : '';
+        if (ext === 'html' || ext === 'htm') return id;
+    }
+    const anyHtml = findFirstHtmlFile(fsData.root);
+    return anyHtml ? anyHtml.id : null;
+}
+
+function findFirstHtmlFile(node) {
+    if (node.type === 'file') {
+        const ext = (node.name.split('.').pop() || '').toLowerCase();
+        return (ext === 'html' || ext === 'htm') ? node : null;
+    }
+    if (node.children) {
+        for (const child of node.children) {
+            const found = findFirstHtmlFile(child);
+            if (found) return found;
+        }
+    }
+    return null;
+}
+
+// Explicitly targets a specific file (used by the "Go Live" context-menu
+// action) and turns the preview on if it isn't already.
+function startLiveServerFor(fileId) {
+    liveTargetFileId = fileId;
+    updateLivePanelLabel();
+    if (!liveServerActive) toggleLiveServer();
+    else updateLiveServer();
+}
+
 function toggleLiveServer() {
     liveServerActive = !liveServerActive;
     btnGoLive.classList.toggle('btn-accent', !liveServerActive);
     btnGoLive.textContent = liveServerActive ? '⏹ Stop Live' : '▶ Go Live';
     if (liveServerActive) {
+        if (!liveTargetFileId || !findNode(liveTargetFileId)) {
+            liveTargetFileId = pickDefaultLiveTarget();
+        }
+        updateLivePanelLabel();
         liveServerPanel.style.display = 'flex';
         updateLiveServer();
     } else {
@@ -892,7 +954,7 @@ function importImageFile(uploadedFile, targetDirectory) {
     };
 }
 
-document.getElementById('ctx-live').addEventListener('click', () => { selectFile(rightClickedItemId); toggleLiveServer(); hideContextMenu(); });
+document.getElementById('ctx-live').addEventListener('click', () => { selectFile(rightClickedItemId); startLiveServerFor(rightClickedItemId); hideContextMenu(); });
 
 document.getElementById('ctx-rename').addEventListener('click', async () => {
     const targetNode = findNode(rightClickedItemId);
@@ -905,6 +967,7 @@ document.getElementById('ctx-rename').addEventListener('click', async () => {
         if (newName) {
             targetNode.name = newName.trim();
             if (activeFileId === rightClickedItemId) fileTitle.textContent = newName.trim();
+            if (liveTargetFileId === rightClickedItemId) updateLivePanelLabel();
             queueAutosave(); renderTree(); renderTabs();
         }
     }
@@ -918,6 +981,11 @@ document.getElementById('ctx-delete').addEventListener('click', async () => {
             openTabs = openTabs.filter(t => t !== id);
             if (secondaryFileId === id) closeSplitView();
         });
+        if (removedIds.includes(liveTargetFileId)) {
+            liveTargetFileId = null;
+            if (liveServerActive) updateLiveServer();
+            else updateLivePanelLabel();
+        }
         if (removedIds.includes(activeFileId)) {
             activeFileId = openTabs.length ? openTabs[openTabs.length - 1] : null;
         }
@@ -933,7 +1001,7 @@ document.getElementById('ctx-delete').addEventListener('click', async () => {
 document.getElementById('edit-ctx-copy').addEventListener('click', () => { document.execCommand('copy'); hideContextMenu(); });
 document.getElementById('edit-ctx-cut').addEventListener('click', () => { document.execCommand('cut'); hideContextMenu(); });
 document.getElementById('edit-ctx-selectall').addEventListener('click', () => { (activePaneIsSecondary ? cmSecondary : cmInstance).execCommand('selectAll'); hideContextMenu(); });
-document.getElementById('edit-ctx-live').addEventListener('click', () => { toggleLiveServer(); hideContextMenu(); });
+document.getElementById('edit-ctx-live').addEventListener('click', () => { if (activeFileId) startLiveServerFor(activeFileId); hideContextMenu(); });
 document.getElementById('edit-ctx-paste').addEventListener('click', async () => {
     try {
         const text = await navigator.clipboard.readText();
@@ -949,7 +1017,7 @@ document.getElementById('edit-ctx-paste').addEventListener('click', async () => 
 ------------------------------------------------------------------ */
 const commandsList = [
     { name: "Switch Theme", desc: "Toggle between workspace Dark/Light profiles", action: () => themeToggleBtn.click() },
-    { name: "Go Live", desc: "Toggle interactive live preview window", action: () => toggleLiveServer() },
+    { name: "Go Live", desc: "Toggle the live preview for the currently targeted HTML file", action: () => toggleLiveServer() },
     { name: "Toggle Split View", desc: "Show/hide the second editor pane", action: () => btnSplitToggle.click() },
     { name: "New File", desc: "Create a new file in the workspace root", action: () => createNewItem('file', 'root') },
     { name: "New Folder", desc: "Create a new folder in the workspace root", action: () => createNewItem('folder', 'root') },
