@@ -1,129 +1,76 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Vivid IDE Pro</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/monokai.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/neo.min.css">
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js"></script>
+    <title>Young Revivalist Academy | Ignite</title>
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- 🌟 PREMIUM FAVICON ARCHITECTURE -->
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="favicon.png" type="image/png" sizes="192x192">
+    <link rel="apple-touch-icon" href="favicon.png">
 </head>
 <body>
+    <canvas id="particleCanvas"></canvas>
 
-    <header>
-        <div class="controls">
-            <button id="btn-sidebar-toggle">☰ Sidebar</button>
-            <button id="btn-new-folder">＋ Folder</button>
-            <button id="btn-new-file">＋ File</button>
-        </div>
-        <div id="file-title" title="Tap to open the command palette">Vivid IDE Active</div>
-        <div class="controls">
-            <button id="btn-split-toggle">🗗 Split</button>
-            <button id="btn-go-live" class="btn-accent">▶ Go Live</button>
-            <button id="btn-save" class="btn-accent">💾 Save</button>
-        </div>
-    </header>
+    <div class="main-wrapper">
+        <header>
+            <div class="logo">YOUNG <span>REVIVALIST</span> ACADEMY</div>
+            <a href="login.html" class="login-pill">Login</a>
+        </header>
 
-    <div class="workspace">
-        <aside id="sidebar">
-            <div class="sidebar-content">
-                <div class="sidebar-header"><span>EXPLORER</span></div>
-                <div class="tree-root" id="explorer-root"></div>
-            </div>
-        </aside>
-
-        <div class="editor-container">
-            <div class="tabs-bar" id="tabs-container"></div>
-
-            <div class="main-editor-split">
-                <main id="editor-main">
-                    <div class="split-workspace-zone" id="split-workspace-zone">
-                        <div class="split-editor-pane active-pane" id="pane-primary">
-                            <div class="pane-header-title"><span>Primary</span></div>
-                            <textarea id="editor" spellcheck="false"></textarea>
-                        </div>
-                        <div class="split-editor-pane" id="pane-secondary" style="display: none;">
-                            <div class="pane-header-title">
-                                <span>Split view</span>
-                                <button id="btn-close-split" style="background:transparent;border:none;color:var(--text-muted);">✕</button>
-                            </div>
-                            <textarea id="editor-secondary" spellcheck="false"></textarea>
+        <section class="hero-3d">
+            <div class="orb-container">
+                <div class="glass-orb">
+                    <div class="orb-content">
+                        <div class="dot-accent"></div>
+                        <h1>Ignite<br>Your<br><span class="orange-glow">Spirit Man.</span></h1>
+                        <p>Young Revivalist Academy is more than a school. It's an atmospheric shift in biblical education.</p>
+                        <div class="scroll-indicator">
+                            <span>JOIN US</span>
+                            <div class="arrow-down"></div>
                         </div>
                     </div>
-                </main>
-
-                <div id="live-server-panel">
-                    <div class="live-panel-header">
-                        <span>LIVE PREVIEW <span id="live-panel-filename" style="color:var(--accent); font-weight:400;"></span></span>
-                        <div style="display:flex; gap:6px;">
-                            <button id="btn-fullscreen-live" style="padding:4px 8px; font-size:11px;">Full Screen</button>
-                            <button id="btn-close-live" style="padding:4px 8px; font-size:11px; background:#ef4444; color:white; border-color:#ef4444;">Close</button>
-                        </div>
-                    </div>
-                    <iframe id="live-preview-frame" sandbox="allow-scripts allow-modals allow-same-origin" title="Live preview"></iframe>
                 </div>
             </div>
-        </div>
-    </div>
+        </section>
 
-    <input type="file" id="vivid-image-device-hook" accept="image/*" style="display: none;">
-
-    <div class="status-bar">
-        <div class="status-segment">
-            <span id="status-mode">Mode: Plain Text</span>
-            <span id="status-sync" class="ok">🟢 Saved</span>
-        </div>
-        <div class="status-segment">
-            <span id="btn-theme-toggle" class="theme-badge">🌙 Switch Theme</span>
-            <span>v2.1.0</span>
-        </div>
-    </div>
-
-    <div id="cmd-palette" class="cmd-palette-overlay">
-        <div class="cmd-palette-box">
-            <input type="text" id="cmd-input" class="cmd-palette-input" placeholder="Type an IDE action... (e.g. Go Live)" autocomplete="off" spellcheck="false">
-            <div id="cmd-results" class="cmd-palette-results"></div>
-        </div>
-    </div>
-
-    <div id="custom-modal" class="modal-overlay">
-        <div class="modal-card">
-            <div id="modal-title" class="modal-title">Create New Item</div>
-            <div id="modal-desc" class="modal-description">Please enter a valid item name.</div>
-            <div id="modal-error" class="modal-error"></div>
-            <input type="text" id="modal-input" class="modal-input" spellcheck="false" autocomplete="off">
-            <div class="modal-actions">
-                <button id="modal-cancel-btn" class="modal-btn modal-btn-cancel">Cancel</button>
-                <button id="modal-confirm-btn" class="modal-btn modal-btn-confirm">Confirm</button>
+        <section class="stats-layer">
+            <div class="stat-box">
+                <h2 class="counter" data-target="10000">10,000</h2>
+                <label>GLOBAL YOUNG REVIVALISTS</label>
             </div>
-        </div>
+            <div class="stat-box">
+                <h2 class="counter" data-target="15">15</h2>
+                <label>NATIONS REACHED</label>
+            </div>
+        </section>
+
+        <section class="creed-section">
+            <div class="creed-card">
+                <h3>THE CREED</h3>
+                <ul id="creed-list">
+                    <li>Igniting Fire in hearts through hunger for God.</li>
+                    <li>Raising Vessels marked by consecration and boldness.</li>
+                    <li>Trained in Truth, rooted in Scripture.</li>
+                    <li>Shaping Vessels fit for the Master's use.</li>
+                    <li>Transforming Nations with the light of the gospel</li>
+                    <li>Reviving the people</li>
+                    <li>We are Young Revivalists.</li>
+                </ul>
+                <a href="signin.html" class="cta-arrow">
+                    <span>JOIN THE MOVEMENT</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </section>
     </div>
 
-    <div id="context-menu" class="custom-menu">
-        <div class="menu-item" id="ctx-new-file">New File...</div>
-        <div class="menu-item" id="ctx-import-image">Import Image...</div>
-        <div class="menu-item" id="ctx-rename">Rename...</div>
-        <div class="menu-item" id="ctx-live" style="color: #22c55e; font-weight: bold; display: none;">Go Live 🟢</div>
-        <div class="menu-item" id="ctx-delete" style="color: #ef4444;">Delete</div>
-    </div>
-
-    <div id="editor-context-menu" class="custom-menu">
-        <div class="menu-item" id="edit-ctx-copy">Copy</div>
-        <div class="menu-item" id="edit-ctx-cut">Cut</div>
-        <div class="menu-item" id="edit-ctx-paste">Paste</div>
-        <div class="menu-item" id="edit-ctx-selectall">Select All</div>
-        <div class="menu-item" id="edit-ctx-live" style="color: #22c55e; font-weight: bold; display: none;">Go Live 🟢</div>
-    </div>
-
-    <script src="app.js"></script>
-    <script>
-        document.getElementById('btn-close-split').addEventListener('click', () => document.getElementById('btn-split-toggle').click());
-    </script>
+    <script src="index.js"></script>
 </body>
 </html>
