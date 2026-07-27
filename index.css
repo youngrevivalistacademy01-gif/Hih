@@ -1,1 +1,149 @@
+:root {
+    --primary-orange: #ff6b3d;
+    --bg-dark: #0a0a0a;
+}
 
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+body {
+    background-color: var(--bg-dark);
+    color: white;
+    overflow-x: hidden;
+    height: 100%;
+}
+
+#particleCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.main-wrapper {
+    position: relative;
+    z-index: 1;
+    perspective: 1000px; /* Essential for 3D */
+}
+
+header {
+    padding: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 10;
+}
+
+.logo { font-weight: 900; font-size: 14px; letter-spacing: 2px; }
+.logo span { color: var(--primary-orange); }
+
+.login-pill {
+    background: var(--primary-orange);
+    color: white;
+    padding: 10px 25px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    box-shadow: 0 0 20px rgba(255, 107, 61, 0.4);
+}
+
+/* 3D Hero Section */
+.hero-3d {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.orb-container {
+    transform-style: preserve-3d;
+    transition: transform 0.1s ease-out;
+}
+
+.glass-orb {
+    width: 340px;
+    height: 480px;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 40px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+}
+
+h1 { font-size: 3.5rem; line-height: 0.9; margin-bottom: 20px; letter-spacing: -2px; }
+.orange-glow { color: var(--primary-orange); text-shadow: 0 0 30px rgba(255, 107, 61, 0.5); }
+
+.hero-3d p {
+    color: #888;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 40px;
+}
+
+/* Stats Section */
+.stats-layer {
+    padding: 100px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 60px;
+}
+
+.stat-box { text-align: center; }
+.stat-box h2 { font-size: 5rem; font-weight: 900; color: var(--primary-orange); line-height: 1; }
+.stat-box label { font-size: 10px; letter-spacing: 2px; color: #555; font-weight: 800; }
+
+/* Creed Section */
+.creed-section { padding: 50px 20px 150px; }
+.creed-card {
+    background: var(--primary-orange);
+    padding: 50px 30px;
+    border-radius: 40px;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+#creed-list li {
+    list-style: none;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s ease;
+}
+
+#creed-list li.show { opacity: 1; transform: translateY(0); }
+
+.cta-arrow {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 40px;
+    text-decoration: none;
+    color: white;
+    font-weight: 900;
+    font-size: 14px;
+}
+
+.cta-arrow i {
+    width: 50px;
+    height: 50px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
