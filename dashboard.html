@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dashboard | Young Revivalist Academy</title>
+
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
+    <link rel="icon" href="../favicon.png" type="image/png" sizes="192x192">
+</head>
+<body>
+
+    <!-- First-time welcome overlay -->
+    <div class="welcome-overlay" id="welcomeOverlay">
+        <div class="welcome-card">
+            <div class="welcome-badge">YOUR JOURNEY BEGINS</div>
+            <h2>Welcome, <span id="welcomeName">Student</span>.</h2>
+            <p>You've been enrolled as <strong id="welcomeMatric">—</strong>. This is your personal path through four classes — each one unlocks as you complete the one before it.</p>
+            <ul class="welcome-steps">
+                <li><i class="fas fa-headphones"></i> Listen to each audio lesson in order</li>
+                <li><i class="fas fa-check-circle"></i> Mark it complete when you're done</li>
+                <li><i class="fas fa-unlock"></i> Finish all lessons in a class to unlock the next</li>
+            </ul>
+            <button id="beginJourneyBtn" class="begin-btn">BEGIN</button>
+        </div>
+    </div>
+
+    <div class="dashboard-wrapper">
+
+        <!-- Hero banner -->
+        <div class="hero-banner">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=1600&q=80" alt="" class="hero-img">
+            <div class="hero-overlay"></div>
+
+            <nav class="hero-nav">
+                <div class="logo">YOUNG <span>REVIVALIST</span> ACADEMY</div>
+                <div class="header-right">
+                    <div class="student-chip">
+                        <span class="matric" id="headerMatric">YRA/—</span>
+                        <span class="name" id="headerName">Loading...</span>
+                    </div>
+                    <button id="logoutBtn" class="logout-btn"><i class="fas fa-arrow-right-from-bracket"></i></button>
+                </div>
+            </nav>
+
+            <div class="hero-content">
+                <span class="hero-eyebrow">YOUR LEARNING JOURNEY</span>
+                <h1>Keep growing, <span id="heroName">Student</span>.</h1>
+            </div>
+        </div>
+
+        <main class="dash-main">
+            <!-- Journey map -->
+            <section class="journey-section">
+                <div class="section-label">YOUR JOURNEY</div>
+                <div class="journey-map" id="journeyMap"></div>
+            </section>
+
+            <!-- Current class + module player -->
+            <section class="current-class-section">
+                <div class="class-header">
+                    <div>
+                        <div class="section-label">CURRENT CLASS</div>
+                        <h2 id="currentClassTitle">Loading...</h2>
+                        <p id="currentClassDesc"></p>
+                    </div>
+                    <div class="class-progress-ring">
+                        <svg viewBox="0 0 100 100">
+                            <circle class="ring-bg" cx="50" cy="50" r="42"></circle>
+                            <circle class="ring-fill" id="progressRing" cx="50" cy="50" r="42"></circle>
+                        </svg>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                </div>
+
+                <div class="modules-list" id="modulesList"></div>
+            </section>
+
+            <!-- Encouragement / info section -->
+            <section class="info-section">
+                <div class="info-card">
+                    <i class="fas fa-headphones-simple"></i>
+                    <h4>Audio-Led Learning</h4>
+                    <p>Every lesson is delivered as audio teaching — listen anywhere, at your own pace.</p>
+                </div>
+                <div class="info-card">
+                    <i class="fas fa-route"></i>
+                    <h4>Structured Path</h4>
+                    <p>Four classes, twelve modules — each step builds deliberately on the one before it.</p>
+                </div>
+                <div class="info-card">
+                    <i class="fas fa-id-badge"></i>
+                    <h4>Your Matric Number</h4>
+                    <p>A permanent record of your enrollment and standing at YRA.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Audio player panel -->
+    <div class="audio-panel" id="audioPanel">
+        <div class="audio-panel-inner">
+            <button class="audio-close" id="audioClose"><i class="fas fa-chevron-down"></i></button>
+            <div class="audio-info">
+                <span class="audio-label" id="audioModuleLabel">MODULE</span>
+                <h3 id="audioModuleTitle">—</h3>
+                <p id="audioModuleFocus"></p>
+            </div>
+            <audio id="audioElement"></audio>
+            <div class="audio-controls">
+                <button id="audioPlayBtn" class="audio-play-btn"><i class="fas fa-play"></i></button>
+                <div class="audio-progress-track">
+                    <div class="audio-progress-fill" id="audioProgressFill"></div>
+                </div>
+                <span class="audio-time" id="audioTime">0:00 / 0:00</span>
+            </div>
+            <button id="markCompleteBtn" class="mark-complete-btn">
+                <i class="fas fa-check"></i> MARK AS COMPLETE
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../supabase-client.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+  </html>
