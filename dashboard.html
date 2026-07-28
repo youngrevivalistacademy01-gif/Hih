@@ -5,6 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Dashboard | Young Revivalist Academy</title>
 
+    <!-- TEMPORARY DEBUG SCRIPT — remove once the blank-page issue is found -->
+    <script>
+    window.onerror = function(message, source, lineno, colno, error) {
+        document.body.insertAdjacentHTML('afterbegin',
+            `<div style="background:#ff4d4d;color:white;padding:16px;font-size:14px;font-family:monospace;position:relative;z-index:9999;">
+                ERROR: ${message}<br>Line: ${lineno}
+            </div>`
+        );
+    };
+    </script>
+
     <link rel="stylesheet" href="dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
@@ -127,4 +138,6 @@
     <script src="../supabase-client.js"></script>
     <script src="dashboard.js"></script>
 </body>
-  </html>
+</html>
+
+        
