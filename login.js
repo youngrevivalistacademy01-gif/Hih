@@ -134,7 +134,7 @@ form.addEventListener('submit', async (e) => {
             throw new Error('This account is not registered as a student.');
         }
 
-        window.location.href = '/student/dashboard.html';
+        window.location.href = 'dashboard.html';
 
     } catch (err) {
         formError.textContent = err.message || 'Unable to sign in. Check your details and try again.';
