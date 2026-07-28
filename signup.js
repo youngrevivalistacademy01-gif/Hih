@@ -168,7 +168,7 @@ form.addEventListener('submit', async (e) => {
         }
 
         // 4. If confirmation isn't required, the user is already signed in.
-        window.location.href = '/student/dashboard.html';
+        window.location.href = 'dashboard.html';
 
     } catch (err) {
         formError.textContent = err.message || 'Unable to create account. Please try again.';
