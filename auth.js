@@ -60,38 +60,15 @@ function initParticles() {
 }
 
 // ==========================================
-// 2. TOGGLE & AUTHENTICATION LOGIC
+// 2. DOM AUTHENTICATION HANDLERS
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     initParticles();
 
-    const toggleLogin = document.getElementById('toggle-login');
-    const toggleRegister = document.getElementById('toggle-register');
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
-    const statusMsg = document.getElementById('status-message');
 
-    // Switch to Sign In
-    if (toggleLogin && toggleRegister && loginForm && registerForm) {
-        toggleLogin.onclick = function() {
-            toggleLogin.classList.add('active');
-            toggleRegister.classList.remove('active');
-            loginForm.classList.add('active');
-            registerForm.classList.remove('active');
-            if (statusMsg) statusMsg.style.display = 'none';
-        };
-
-        // Switch to Sign Up
-        toggleRegister.onclick = function() {
-            toggleRegister.classList.add('active');
-            toggleLogin.classList.remove('active');
-            registerForm.classList.add('active');
-            loginForm.classList.remove('active');
-            if (statusMsg) statusMsg.style.display = 'none';
-        };
-    }
-
-    // Handle Sign Up
+    // Sign Up Handler (Runs on signup.html)
     if (registerForm) {
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -136,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Handle Sign In
+    // Sign In Handler (Runs on login.html)
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
