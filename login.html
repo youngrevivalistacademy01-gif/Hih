@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Young Revivalist Academy | Portal Access</title>
+    <title>Young Revivalist Academy | Sign In</title>
 
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-    <!-- External CSS -->
+    <!-- Shared CSS -->
     <link rel="stylesheet" href="login.css">
 
     <!-- Supabase JS Client Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <!-- External JS -->
+    <!-- Shared JS -->
     <script src="auth.js" defer></script>
 </head>
 <body>
@@ -31,15 +31,10 @@
             <div class="orb-container">
                 <div class="glass-orb auth-card">
                     
-                    <div class="auth-toggle">
-                        <button id="toggle-login" class="toggle-btn active" type="button">Sign In</button>
-                        <button id="toggle-register" class="toggle-btn" type="button">Sign Up</button>
-                    </div>
-
                     <div id="status-message" class="status-msg"></div>
 
-                    <!-- 1. SIGN IN FORM -->
-                    <form id="login-form" class="auth-form active">
+                    <!-- SIGN IN FORM -->
+                    <form id="login-form" class="auth-form">
                         <div class="form-header">
                             <h2>Welcome Back</h2>
                             <p>Enter your credentials to access YRA</p>
@@ -61,35 +56,13 @@
                         </button>
                     </form>
 
-                    <!-- 2. SIGN UP FORM -->
-                    <form id="register-form" class="auth-form">
-                        <div class="form-header">
-                            <h2>Join the Movement</h2>
-                            <p>Apply for admission to Young Revivalist Academy</p>
-                        </div>
+                    <!-- DIRECT LINK TO SIGN UP PAGE -->
+                    <div class="account-switch-container">
+                        <span>Don't have an account yet?</span>
+                        <a href="signup.html" class="switch-link-btn">CREATE AN ACCOUNT</a>
+                    </div>
 
-                        <div class="input-group">
-                            <i class="fas fa-user input-icon"></i>
-                            <input type="text" id="reg-fullname" placeholder="Full Name" required>
-                        </div>
-
-                        <div class="input-group">
-                            <i class="fas fa-envelope input-icon"></i>
-                            <input type="email" id="reg-email" placeholder="Email Address" required autocomplete="email">
-                        </div>
-
-                        <div class="input-group">
-                            <i class="fas fa-lock input-icon"></i>
-                            <input type="password" id="reg-password" placeholder="Password (min. 6 chars)" required autocomplete="new-password">
-                        </div>
-
-                        <button type="submit" id="register-btn" class="auth-submit-btn">
-                            <span>SUBMIT APPLICATION</span>
-                            <i class="fas fa-arrow-right"></i>
-                        </button>
-                    </form>
-
-                    <!-- 3. ADMIN PORTAL DIRECTIVE -->
+                    <!-- ADMIN PORTAL DIRECTIVE -->
                     <div class="admin-directive">
                         <span>FACULTY & ADMINISTRATION</span>
                         <a href="admin/dashboard.html">
