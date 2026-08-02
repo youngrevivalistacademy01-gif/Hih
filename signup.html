@@ -3,82 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sign Up | Young Revivalist Academy</title>
+    <title>Young Revivalist Academy | Apply for Admission</title>
 
-    <link rel="stylesheet" href="signup.css">
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    <link rel="icon" href="favicon.png" type="image/png" sizes="192x192">
+    <!-- Shared CSS -->
+    <link rel="stylesheet" href="login.css">
+
+    <!-- Supabase JS Client Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Shared JS -->
+    <script src="auth.js" defer></script>
 </head>
 <body>
+
     <canvas id="particleCanvas"></canvas>
 
-    <div class="login-wrapper">
-        <a href="login.html" class="back-link">
-            <i class="fas fa-arrow-left"></i>
-            <span>BACK</span>
-        </a>
+    <div class="auth-wrapper">
+        <header class="auth-header">
+            <a href="index.html" class="logo">YOUNG <span>REVIVALIST</span> ACADEMY</a>
+            <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Home</a>
+        </header>
 
-        <div class="login-panel">
-            <div class="login-header">
-                <div class="logo">YOUNG <span>REVIVALIST</span> ACADEMY</div>
-                <h1>Begin<br>Your Journey.</h1>
-                <p>Create your account to enroll.</p>
+        <main class="auth-container">
+            <div class="orb-container">
+                <div class="glass-orb auth-card">
+                    
+                    <div id="status-message" class="status-msg"></div>
+
+                    <!-- SIGN UP FORM -->
+                    <form id="register-form" class="auth-form">
+                        <div class="form-header">
+                            <h2>Join the Movement</h2>
+                            <p>Apply for admission to Young Revivalist Academy</p>
+                        </div>
+
+                        <div class="input-group">
+                            <i class="fas fa-user input-icon"></i>
+                            <input type="text" id="reg-fullname" placeholder="Full Name" required>
+                        </div>
+
+                        <div class="input-group">
+                            <i class="fas fa-envelope input-icon"></i>
+                            <input type="email" id="reg-email" placeholder="Email Address" required autocomplete="email">
+                        </div>
+
+                        <div class="input-group">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input type="password" id="reg-password" placeholder="Password (min. 6 chars)" required autocomplete="new-password">
+                        </div>
+
+                        <button type="submit" id="register-btn" class="auth-submit-btn">
+                            <span>SUBMIT APPLICATION</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </form>
+
+                    <!-- DIRECT LINK TO SIGN IN PAGE -->
+                    <div class="account-switch-container">
+                        <span>Already registered?</span>
+                        <a href="login.html" class="switch-link-btn">SIGN IN TO YOUR PORTAL</a>
+                    </div>
+
+                    <!-- ADMIN PORTAL DIRECTIVE -->
+                    <div class="admin-directive">
+                        <span>FACULTY & ADMINISTRATION</span>
+                        <a href="admin/dashboard.html">
+                            <i class="fas fa-user-shield"></i>
+                            ADMINISTRATOR PORTAL
+                        </a>
+                    </div>
+
+                </div>
             </div>
-
-            <form id="signupForm" class="login-form" novalidate>
-                <div class="input-group">
-                    <label for="fullName">FULL NAME</label>
-                    <input type="text" id="fullName" name="fullName" required autocomplete="name" placeholder="Your full name">
-                    <span class="input-line"></span>
-                    <span class="error-msg" id="fullNameError"></span>
-                </div>
-
-                <div class="input-group">
-                    <label for="email">EMAIL</label>
-                    <input type="email" id="email" name="email" required autocomplete="email" placeholder="you@example.com">
-                    <span class="input-line"></span>
-                    <span class="error-msg" id="emailError"></span>
-                </div>
-
-                <div class="input-group">
-                    <label for="password">PASSWORD</label>
-                    <input type="password" id="password" name="password" required autocomplete="new-password" placeholder="At least 6 characters">
-                    <span class="input-line"></span>
-                    <span class="error-msg" id="passwordError"></span>
-                </div>
-
-                <div class="input-group">
-                    <label for="confirmPassword">CONFIRM PASSWORD</label>
-                    <input type="password" id="confirmPassword" name="confirmPassword" required autocomplete="new-password" placeholder="Re-enter your password">
-                    <span class="input-line"></span>
-                    <span class="error-msg" id="confirmPasswordError"></span>
-                </div>
-
-                <div class="form-footer">
-                    <span class="general-error" id="formError"></span>
-                    <span class="general-success" id="formSuccess"></span>
-                    <button type="submit" class="signin-btn" id="signupBtn">
-                        <span class="btn-text">CREATE ACCOUNT</span>
-                        <span class="btn-loader"></span>
-                    </button>
-                </div>
-            </form>
-
-            <div class="divider">
-                <span>OR</span>
-            </div>
-
-            <a href="login.html" class="admin-link">
-                <i class="fas fa-arrow-right-to-bracket"></i>
-                <span>Already have an account? Sign In</span>
-            </a>
-        </div>
+        </main>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-client.js"></script>
-    <script src="signup.js"></script>
 </body>
 </html>
