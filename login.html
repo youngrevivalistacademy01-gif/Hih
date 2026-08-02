@@ -5,8 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Young Revivalist Academy | Portal Access</title>
 
-    <!-- FontAwesome & Google Fonts -->
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Supabase JS Client Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
         :root {
@@ -216,6 +219,18 @@
             transform: translateY(-2px);
             box-shadow: 0 0 30px rgba(255, 107, 61, 0.6);
         }
+
+        /* Status Feedback Message */
+        .status-msg {
+            display: none;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .status-msg.error { background: rgba(255, 0, 0, 0.2); border: 1px solid red; color: #ff8888; }
+        .status-msg.success { background: rgba(0, 255, 0, 0.2); border: 1px solid green; color: #88ff88; }
     </style>
 </head>
 <body>
@@ -237,16 +252,19 @@
                         <button id="toggle-register" class="toggle-btn">Sign Up</button>
                     </div>
 
+                    <!-- Alert message container -->
+                    <div id="status-message" class="status-msg"></div>
+
                     <!-- 1. SIGN IN FORM -->
                     <form id="login-form" class="auth-form active">
                         <div class="form-header">
                             <h2>Welcome Back</h2>
-                            <p>Enter your student credentials to access Young Revivalist Academy</p>
+                            <p>Enter your credentials to access YRA</p>
                         </div>
 
                         <div class="input-group">
-                            <i class="fas fa-id-card input-icon"></i>
-                            <input type="text" id="login-identifier" placeholder="Matric No. or Email" required autocomplete="username">
+                            <i class="fas fa-envelope input-icon"></i>
+                            <input type="email" id="login-email" placeholder="Email Address" required autocomplete="email">
                         </div>
 
                         <div class="input-group">
@@ -254,8 +272,8 @@
                             <input type="password" id="login-password" placeholder="Password" required autocomplete="current-password">
                         </div>
 
-                        <button type="submit" class="auth-submit-btn">
-                            <span>ENTER STUDENT PORTAL</span>
+                        <button type="submit" id="login-btn" class="auth-submit-btn">
+                            <span>ENTER PORTAL</span>
                             <i class="fas fa-arrow-right"></i>
                         </button>
                     </form>
@@ -282,7 +300,7 @@
                             <input type="password" id="reg-password" placeholder="Password (min. 6 chars)" required autocomplete="new-password">
                         </div>
 
-                        <button type="submit" class="auth-submit-btn">
+                        <button type="submit" id="register-btn" class="auth-submit-btn">
                             <span>SUBMIT APPLICATION</span>
                             <i class="fas fa-arrow-right"></i>
                         </button>
@@ -303,13 +321,20 @@
     </div>
 
     <script>
-        // Particle Engine
+        // ==========================================
+        // 1. SUPABASE INITIALIZATION
+        // ==========================================
+        const SUPABASE_URL = 'https://vhxdqcqbwnskhujzgtsy.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZoeGRxY3Fid25za2h1anpndHN5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2ODA5NTEsImV4cCI6MjEwMTI1Njk1MX0.fZAwMZn1sXtJTXqjSf5gdOc8xoXPwm6wfa_dOKP3sJM';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Canvas & Orb Visual Effects
         const canvas = document.getElementById('particleCanvas');
         if (canvas) {
             const ctx = canvas.getContext('2d');
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-
             let particlesArray = [];
 
             class Particle {
@@ -339,41 +364,29 @@
 
             function initParticles() {
                 particlesArray = [];
-                for (let i = 0; i < 100; i++) {
-                    particlesArray.push(new Particle());
-                }
+                for (let i = 0; i < 100; i++) particlesArray.push(new Particle());
             }
 
             function animateParticles() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                particlesArray.forEach(p => {
-                    p.update();
-                    p.draw();
-                });
+                particlesArray.forEach(p => { p.update(); p.draw(); });
                 requestAnimationFrame(animateParticles);
             }
-
             initParticles();
             animateParticles();
-
-            window.addEventListener('resize', () => {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-                initParticles();
-            });
         }
 
-        // 3D Orb Motion
-        const orbContainer = document.querySelector('.orb-container');
-        if (orbContainer) {
-            document.addEventListener('mousemove', (e) => {
-                let x = (window.innerWidth / 2 - e.pageX) / 30;
-                let y = (window.innerHeight / 2 - e.pageY) / 30;
-                orbContainer.style.transform = `rotateY(${x}deg) rotateX(${-y}deg)`;
-            });
+        // Helper UI Notice
+        function showMessage(msg, isError = false) {
+            const statusMsg = document.getElementById('status-message');
+            statusMsg.innerText = msg;
+            statusMsg.className = `status-msg ${isError ? 'error' : 'success'}`;
+            statusMsg.style.display = 'block';
         }
 
-        // Form Toggles
+        // ==========================================
+        // 2. AUTHENTICATION LOGIC
+        // ==========================================
         document.addEventListener('DOMContentLoaded', () => {
             const toggleLogin = document.getElementById('toggle-login');
             const toggleRegister = document.getElementById('toggle-register');
@@ -385,6 +398,7 @@
                 toggleRegister.classList.remove('active');
                 loginForm.classList.add('active');
                 registerForm.classList.remove('active');
+                document.getElementById('status-message').style.display = 'none';
             });
 
             toggleRegister.addEventListener('click', () => {
@@ -392,22 +406,88 @@
                 toggleLogin.classList.remove('active');
                 registerForm.classList.add('active');
                 loginForm.classList.remove('active');
+                document.getElementById('status-message').style.display = 'none';
             });
 
-            loginForm.addEventListener('submit', (e) => {
+            // SIGN UP (Create auth user + profile record)
+            registerForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const identifier = document.getElementById('login-identifier').value;
-                if (identifier.toLowerCase().includes('admin')) {
-                    window.location.href = 'admin/dashboard.html';
-                } else {
-                    window.location.href = 'student/dashboard.html';
+                const fullName = document.getElementById('reg-fullname').value;
+                const email = document.getElementById('reg-email').value;
+                const password = document.getElementById('reg-password').value;
+
+                showMessage('Submitting application...');
+
+                // Create account in Supabase Auth
+                const { data: authData, error: authError } = await supabase.auth.signUp({
+                    email: email,
+                    password: password
+                });
+
+                if (authError) {
+                    showMessage(authError.message, true);
+                    return;
+                }
+
+                if (authData.user) {
+                    // Create entry in profiles table (Triggers matric number auto-gen)
+                    const { error: profileError } = await supabase
+                        .from('profiles')
+                        .insert([
+                            { 
+                                id: authData.user.id, 
+                                full_name: fullName, 
+                                email: email,
+                                role: 'student',
+                                current_class: 'foundational'
+                            }
+                        ]);
+
+                    if (profileError) {
+                        showMessage(profileError.message, true);
+                    } else {
+                        showMessage('Registration successful! Redirecting to student portal...');
+                        setTimeout(() => {
+                            window.location.href = 'student/dashboard.html';
+                        }, 1500);
+                    }
                 }
             });
 
-            registerForm.addEventListener('submit', (e) => {
+            // SIGN IN
+            loginForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                alert("Application submitted successfully! Redirecting to student dashboard...");
-                window.location.href = 'student/dashboard.html';
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+
+                showMessage('Verifying credentials...');
+
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+                if (error) {
+                    showMessage(error.message, true);
+                    return;
+                }
+
+                // Check User Role from profiles table
+                const { data: profile, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', data.user.id)
+                    .single();
+
+                showMessage('Login successful! Redirecting...');
+                
+                setTimeout(() => {
+                    if (profile && profile.role === 'admin') {
+                        window.location.href = 'admin/dashboard.html';
+                    } else {
+                        window.location.href = 'student/dashboard.html';
+                    }
+                }, 1000);
             });
         });
     </script>
