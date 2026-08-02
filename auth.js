@@ -6,7 +6,6 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Helper UI Notice
 function showMessage(msg, isError = false) {
     const statusMsg = document.getElementById('status-message');
     if (statusMsg) {
@@ -16,7 +15,6 @@ function showMessage(msg, isError = false) {
     }
 }
 
-// Particle Canvas Visual Engine
 function initParticles() {
     const canvas = document.getElementById('particleCanvas');
     if (!canvas) return;
@@ -62,7 +60,7 @@ function initParticles() {
 }
 
 // ==========================================
-// 2. DOM EVENT LISTENERS
+// 2. TOGGLE & AUTHENTICATION LOGIC
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     initParticles();
@@ -73,31 +71,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const registerForm = document.getElementById('register-form');
     const statusMsg = document.getElementById('status-message');
 
-    // Toggle to Sign In Form
-    if (toggleLogin) {
-        toggleLogin.addEventListener('click', (e) => {
-            e.preventDefault();
+    // Switch to Sign In
+    if (toggleLogin && toggleRegister && loginForm && registerForm) {
+        toggleLogin.onclick = function() {
             toggleLogin.classList.add('active');
             toggleRegister.classList.remove('active');
             loginForm.classList.add('active');
             registerForm.classList.remove('active');
             if (statusMsg) statusMsg.style.display = 'none';
-        });
-    }
+        };
 
-    // Toggle to Sign Up Form
-    if (toggleRegister) {
-        toggleRegister.addEventListener('click', (e) => {
-            e.preventDefault();
+        // Switch to Sign Up
+        toggleRegister.onclick = function() {
             toggleRegister.classList.add('active');
             toggleLogin.classList.remove('active');
             registerForm.classList.add('active');
             loginForm.classList.remove('active');
             if (statusMsg) statusMsg.style.display = 'none';
-        });
+        };
     }
 
-    // Handle Sign Up Submission
+    // Handle Sign Up
     if (registerForm) {
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -135,14 +129,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     showMessage('Registration successful! Redirecting to student portal...');
                     setTimeout(() => {
-                        window.location.href = 'student/dashboard.html';
+                        window.location.href = 'student-dashboard.html';
                     }, 1500);
                 }
             }
         });
     }
 
-    // Handle Sign In Submission
+    // Handle Sign In
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -173,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (profile && profile.role === 'admin') {
                     window.location.href = 'admin/dashboard.html';
                 } else {
-                    window.location.href = 'student/dashboard.html';
+                    window.location.href = 'student-dashboard.html';
                 }
             }, 1000);
         });
