@@ -5,16 +5,221 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Young Revivalist Academy | Portal Access</title>
 
-    <!-- Stylesheets -->
-    <link rel="stylesheet" href="assets/css/global.css">
-    <link rel="stylesheet" href="assets/css/auth.css">
+    <!-- FontAwesome & Google Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-    <!-- Favicon -->
-    <link rel="icon" href="favicon.png" type="image/png">
+    <style>
+        :root {
+            --primary-orange: #ff6b3d;
+            --orange-glow: rgba(255, 107, 61, 0.4);
+            --bg-dark: #0a0a0a;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --text-muted: #888888;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #ffffff;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        #particleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .auth-wrapper {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            perspective: 1000px;
+        }
+
+        .auth-header {
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-weight: 900;
+            font-size: 14px;
+            letter-spacing: 2px;
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        .logo span { color: var(--primary-orange); }
+
+        .back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover { color: #ffffff; }
+
+        .auth-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .orb-container {
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease-out;
+        }
+
+        .auth-card {
+            width: 380px;
+            min-height: 520px;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            padding: 35px 30px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .auth-toggle {
+            display: flex;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 50px;
+            padding: 4px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .toggle-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 10px 0;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .toggle-btn.active {
+            background: var(--primary-orange);
+            color: #ffffff;
+            box-shadow: 0 0 15px var(--orange-glow);
+        }
+
+        .auth-form {
+            display: none;
+            flex-direction: column;
+            gap: 18px;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .auth-form.active { display: flex; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-header h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        .form-header p {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+        }
+
+        .input-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .input-group input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 14px 14px 14px 45px;
+            color: #ffffff;
+            font-size: 13px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            border-color: var(--primary-orange);
+            box-shadow: 0 0 10px rgba(255, 107, 61, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .auth-submit-btn {
+            margin-top: 10px;
+            background: var(--primary-orange);
+            color: #ffffff;
+            border: none;
+            padding: 14px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 0 20px var(--orange-glow);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .auth-submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(255, 107, 61, 0.6);
+        }
+    </style>
 </head>
 <body>
-    <!-- Particle Canvas background matching landing page -->
+
     <canvas id="particleCanvas"></canvas>
 
     <div class="auth-wrapper">
@@ -27,13 +232,12 @@
             <div class="orb-container">
                 <div class="glass-orb auth-card">
                     
-                    <!-- Dynamic Auth Toggle (Student Sign In / Sign Up) -->
                     <div class="auth-toggle">
                         <button id="toggle-login" class="toggle-btn active">Sign In</button>
                         <button id="toggle-register" class="toggle-btn">Sign Up</button>
                     </div>
 
-                    <!-- 1. STUDENT SIGN IN FORM -->
+                    <!-- 1. SIGN IN FORM -->
                     <form id="login-form" class="auth-form active">
                         <div class="form-header">
                             <h2>Welcome Back</h2>
@@ -56,7 +260,7 @@
                         </button>
                     </form>
 
-                    <!-- 2. STUDENT SIGN UP FORM -->
+                    <!-- 2. SIGN UP FORM -->
                     <form id="register-form" class="auth-form">
                         <div class="form-header">
                             <h2>Join the Movement</h2>
@@ -84,10 +288,10 @@
                         </button>
                     </form>
 
-                    <!-- 3. ADMIN PORTAL ACCESS DIRECTIVE -->
-                    <div class="admin-access-wrapper" style="margin-top: 25px; text-align: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 15px;">
+                    <!-- 3. ADMIN PORTAL DIRECTIVE -->
+                    <div style="margin-top: 25px; text-align: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 15px;">
                         <span style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 10px;">FACULTY & ADMINISTRATION</span>
-                        <a href="admin/dashboard.html" class="admin-portal-btn" style="color: #ffffff; text-decoration: none; font-size: 11px; font-weight: 700; letter-spacing: 1px; display: inline-flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.05); padding: 8px 18px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s ease;">
+                        <a href="admin/dashboard.html" style="color: #ffffff; text-decoration: none; font-size: 11px; font-weight: 700; letter-spacing: 1px; display: inline-flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.05); padding: 8px 18px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s ease;">
                             <i class="fas fa-user-shield" style="color: var(--primary-orange);"></i>
                             ADMINISTRATOR PORTAL
                         </a>
@@ -98,8 +302,114 @@
         </main>
     </div>
 
-    <!-- Scripts -->
-    <script src="assets/js/utils.js"></script>
-    <script src="assets/js/auth.js"></script>
+    <script>
+        // Particle Engine
+        const canvas = document.getElementById('particleCanvas');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            let particlesArray = [];
+
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.size = Math.random() * 2 + 0.1;
+                    this.speedX = Math.random() * 0.5 - 0.25;
+                    this.speedY = Math.random() * 0.5 - 0.25;
+                    this.opacity = Math.random() * 0.5;
+                }
+                update() {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+                    if (this.x > canvas.width) this.x = 0;
+                    if (this.x < 0) this.x = canvas.width;
+                    if (this.y > canvas.height) this.y = 0;
+                    if (this.y < 0) this.y = canvas.height;
+                }
+                draw() {
+                    ctx.fillStyle = `rgba(255, 107, 61, ${this.opacity})`;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            function initParticles() {
+                particlesArray = [];
+                for (let i = 0; i < 100; i++) {
+                    particlesArray.push(new Particle());
+                }
+            }
+
+            function animateParticles() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particlesArray.forEach(p => {
+                    p.update();
+                    p.draw();
+                });
+                requestAnimationFrame(animateParticles);
+            }
+
+            initParticles();
+            animateParticles();
+
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                initParticles();
+            });
+        }
+
+        // 3D Orb Motion
+        const orbContainer = document.querySelector('.orb-container');
+        if (orbContainer) {
+            document.addEventListener('mousemove', (e) => {
+                let x = (window.innerWidth / 2 - e.pageX) / 30;
+                let y = (window.innerHeight / 2 - e.pageY) / 30;
+                orbContainer.style.transform = `rotateY(${x}deg) rotateX(${-y}deg)`;
+            });
+        }
+
+        // Form Toggles
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleLogin = document.getElementById('toggle-login');
+            const toggleRegister = document.getElementById('toggle-register');
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+
+            toggleLogin.addEventListener('click', () => {
+                toggleLogin.classList.add('active');
+                toggleRegister.classList.remove('active');
+                loginForm.classList.add('active');
+                registerForm.classList.remove('active');
+            });
+
+            toggleRegister.addEventListener('click', () => {
+                toggleRegister.classList.add('active');
+                toggleLogin.classList.remove('active');
+                registerForm.classList.add('active');
+                loginForm.classList.remove('active');
+            });
+
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const identifier = document.getElementById('login-identifier').value;
+                if (identifier.toLowerCase().includes('admin')) {
+                    window.location.href = 'admin/dashboard.html';
+                } else {
+                    window.location.href = 'student/dashboard.html';
+                }
+            });
+
+            registerForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                alert("Application submitted successfully! Redirecting to student dashboard...");
+                window.location.href = 'student/dashboard.html';
+            });
+        });
+    </script>
 </body>
 </html>
