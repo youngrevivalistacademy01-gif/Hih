@@ -84,7 +84,7 @@ body {
 
 .auth-card {
     width: 380px;
-    min-height: 520px;
+    min-height: 480px;
     background: var(--card-bg);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -96,44 +96,11 @@ body {
     flex-direction: column;
 }
 
-.auth-toggle {
-    display: flex;
-    background: rgba(0, 0, 0, 0.4);
-    border-radius: 50px;
-    padding: 4px;
-    margin-bottom: 25px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.toggle-btn {
-    flex: 1;
-    background: transparent;
-    border: none;
-    color: var(--text-muted);
-    padding: 10px 0;
-    border-radius: 50px;
-    font-size: 12px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-}
-
-.toggle-btn.active {
-    background: var(--primary-orange);
-    color: #ffffff;
-    box-shadow: 0 0 15px var(--orange-glow);
-}
-
 .auth-form {
-    display: none !important;
+    display: flex;
     flex-direction: column;
     gap: 18px;
     animation: fadeIn 0.4s ease forwards;
-}
-
-.auth-form.active { 
-    display: flex !important; 
 }
 
 @keyframes fadeIn {
@@ -185,7 +152,7 @@ body {
 }
 
 .auth-submit-btn {
-    margin-top: 10px;
+    margin-top: 5px;
     background: var(--primary-orange);
     color: #ffffff;
     border: none;
@@ -208,19 +175,52 @@ body {
     box-shadow: 0 0 30px rgba(255, 107, 61, 0.6);
 }
 
+/* Page Navigation Link Styling */
+.account-switch-container {
+    margin-top: 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.account-switch-container span {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.switch-link-btn {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    padding: 10px;
+    border-radius: 50px;
+    border: 1px dashed rgba(255, 107, 61, 0.4);
+    background: rgba(255, 107, 61, 0.05);
+    transition: all 0.3s ease;
+}
+
+.switch-link-btn:hover {
+    background: rgba(255, 107, 61, 0.15);
+    border-color: var(--primary-orange);
+    color: var(--primary-orange);
+}
+
 .status-msg {
     display: none;
     padding: 10px;
     border-radius: 10px;
     font-size: 12px;
     text-align: center;
-    margin-top: 10px;
+    margin-bottom: 15px;
 }
 .status-msg.error { background: rgba(255, 0, 0, 0.2); border: 1px solid red; color: #ff8888; }
 .status-msg.success { background: rgba(0, 255, 0, 0.2); border: 1px solid green; color: #88ff88; }
 
 .admin-directive {
-    margin-top: 25px; 
+    margin-top: 20px; 
     text-align: center; 
     border-top: 1px solid rgba(255,255,255,0.08); 
     padding-top: 15px;
@@ -230,7 +230,7 @@ body {
     font-size: 11px; 
     color: var(--text-muted); 
     display: block; 
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 .admin-directive a {
