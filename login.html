@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>YRA | Portal Access</title>
+    <title>Young Revivalist Academy | Portal Access</title>
 
-    <!-- Stylesheets -->
-    <link rel="stylesheet" href="assets/css/global.css">
-    <link rel="stylesheet" href="assets/css/auth.css">
+    <!-- Stylesheets (Fixed relative paths for GitHub Pages) -->
+    <link rel="stylesheet" href="./assets/css/global.css">
+    <link rel="stylesheet" href="./assets/css/auth.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <!-- Favicon -->
@@ -26,22 +26,23 @@
         <main class="auth-container">
             <div class="orb-container">
                 <div class="glass-orb auth-card">
-                    <!-- Dynamic Auth Toggle -->
+                    
+                    <!-- Dynamic Auth Toggle (Student Sign In / Sign Up) -->
                     <div class="auth-toggle">
                         <button id="toggle-login" class="toggle-btn active">Sign In</button>
                         <button id="toggle-register" class="toggle-btn">Sign Up</button>
                     </div>
 
-                    <!-- 1. SIGN IN FORM -->
+                    <!-- 1. STUDENT SIGN IN FORM -->
                     <form id="login-form" class="auth-form active">
                         <div class="form-header">
                             <h2>Welcome Back</h2>
-                            <p>Enter your credentials to access the Portal</p>
+                            <p>Enter your student credentials to access Young Revivalist Academy</p>
                         </div>
 
                         <div class="input-group">
                             <i class="fas fa-id-card input-icon"></i>
-                            <input type="text" id="login-identifier" placeholder="Email" required autocomplete="username">
+                            <input type="text" id="login-identifier" placeholder="Matric No. or Email" required autocomplete="username">
                         </div>
 
                         <div class="input-group">
@@ -50,12 +51,12 @@
                         </div>
 
                         <button type="submit" class="auth-submit-btn">
-                            <span>ENTER PORTAL</span>
+                            <span>ENTER STUDENT PORTAL</span>
                             <i class="fas fa-arrow-right"></i>
                         </button>
                     </form>
 
-                    <!-- 2. SIGN UP FORM -->
+                    <!-- 2. STUDENT SIGN UP FORM -->
                     <form id="register-form" class="auth-form">
                         <div class="form-header">
                             <h2>Join the Movement</h2>
@@ -82,13 +83,23 @@
                             <i class="fas fa-arrow-right"></i>
                         </button>
                     </form>
+
+                    <!-- 3. ADMIN PORTAL ACCESS DIRECTIVE -->
+                    <div class="admin-access-wrapper" style="margin-top: 25px; text-align: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 15px;">
+                        <span style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 10px;">FACULTY & ADMINISTRATION</span>
+                        <a href="./admin/dashboard.html" class="admin-portal-btn" style="color: #ffffff; text-decoration: none; font-size: 11px; font-weight: 700; letter-spacing: 1px; display: inline-flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.05); padding: 8px 18px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1); transition: all 0.3s ease;">
+                            <i class="fas fa-user-shield" style="color: var(--primary-orange);"></i>
+                            ADMINISTRATOR PORTAL
+                        </a>
+                    </div>
+
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Scripts -->
-    <script src="assets/js/utils.js"></script>
-    <script src="assets/js/auth.js"></script>
+    <!-- Scripts (Fixed relative paths) -->
+    <script src="./assets/js/utils.js"></script>
+    <script src="./assets/js/auth.js"></script>
 </body>
 </html>
