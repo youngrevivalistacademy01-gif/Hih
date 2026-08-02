@@ -3,69 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Login | Young Revivalist Academy</title>
+    <title>YRA | Portal Access</title>
 
-    <link rel="stylesheet" href="login.css">
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="assets/css/global.css">
+    <link rel="stylesheet" href="assets/css/auth.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    <link rel="icon" href="favicon.png" type="image/png" sizes="192x192">
-    <link rel="apple-touch-icon" href="favicon.png">
+    <!-- Favicon -->
+    <link rel="icon" href="favicon.png" type="image/png">
 </head>
 <body>
+    <!-- Particle Canvas background matching landing page -->
     <canvas id="particleCanvas"></canvas>
 
-    <div class="login-wrapper">
-        <a href="index.html" class="back-link">
-            <i class="fas fa-arrow-left"></i>
-            <span>BACK</span>
-        </a>
+    <div class="auth-wrapper">
+        <header class="auth-header">
+            <a href="index.html" class="logo">YOUNG <span>REVIVALIST</span> ACADEMY</a>
+            <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Home</a>
+        </header>
 
-        <div class="login-panel">
-            <div class="login-header">
-                <div class="logo">YOUNG <span>REVIVALIST</span> ACADEMY</div>
-                <h1>Welcome<br>Back.</h1>
-                <p>Sign in to continue your journey.</p>
+        <main class="auth-container">
+            <div class="orb-container">
+                <div class="glass-orb auth-card">
+                    <!-- Dynamic Auth Toggle -->
+                    <div class="auth-toggle">
+                        <button id="toggle-login" class="toggle-btn active">Sign In</button>
+                        <button id="toggle-register" class="toggle-btn">Sign Up</button>
+                    </div>
+
+                    <!-- 1. SIGN IN FORM -->
+                    <form id="login-form" class="auth-form active">
+                        <div class="form-header">
+                            <h2>Welcome Back</h2>
+                            <p>Enter your credentials to access the Portal</p>
+                        </div>
+
+                        <div class="input-group">
+                            <i class="fas fa-id-card input-icon"></i>
+                            <input type="text" id="login-identifier" placeholder="Email" required autocomplete="username">
+                        </div>
+
+                        <div class="input-group">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input type="password" id="login-password" placeholder="Password" required autocomplete="current-password">
+                        </div>
+
+                        <button type="submit" class="auth-submit-btn">
+                            <span>ENTER PORTAL</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </form>
+
+                    <!-- 2. SIGN UP FORM -->
+                    <form id="register-form" class="auth-form">
+                        <div class="form-header">
+                            <h2>Join the Movement</h2>
+                            <p>Apply for admission to Young Revivalist Academy</p>
+                        </div>
+
+                        <div class="input-group">
+                            <i class="fas fa-user input-icon"></i>
+                            <input type="text" id="reg-fullname" placeholder="Full Name" required>
+                        </div>
+
+                        <div class="input-group">
+                            <i class="fas fa-envelope input-icon"></i>
+                            <input type="email" id="reg-email" placeholder="Email Address" required autocomplete="email">
+                        </div>
+
+                        <div class="input-group">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input type="password" id="reg-password" placeholder="Password (min. 6 chars)" required autocomplete="new-password">
+                        </div>
+
+                        <button type="submit" class="auth-submit-btn">
+                            <span>SUBMIT APPLICATION</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </form>
+                </div>
             </div>
-
-            <form id="loginForm" class="login-form" novalidate>
-                <div class="input-group">
-                    <label for="email">EMAIL</label>
-                    <input type="email" id="email" name="email" required autocomplete="email" placeholder="you@example.com">
-                    <span class="input-line"></span>
-                    <span class="error-msg" id="emailError"></span>
-                </div>
-
-                <div class="input-group">
-                    <label for="password">PASSWORD</label>
-                    <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="••••••••••">
-                    <span class="input-line"></span>
-                    <span class="error-msg" id="passwordError"></span>
-                </div>
-
-                <div class="form-footer">
-                    <span class="general-error" id="formError"></span>
-                    <button type="submit" class="signin-btn" id="signinBtn">
-                        <span class="btn-text">SIGN IN</span>
-                        <span class="btn-loader"></span>
-                    </button>
-                </div>
-            </form>
-
-            <div class="divider">
-                <span>OR</span>
-            </div>
-
-            <a href="admin-login.html" class="admin-link">
-                <i class="fas fa-shield-halved"></i>
-                <span>Administrator Login</span>
-            </a>
-        </div>
+        </main>
     </div>
 
-    <!-- Supabase SDK must load first, then the shared client, then this page's logic -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-client.js"></script>
-    <script src="login.js"></script>
+    <!-- Scripts -->
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/auth.js"></script>
 </body>
 </html>
